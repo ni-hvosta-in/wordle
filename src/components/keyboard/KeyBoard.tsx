@@ -1,4 +1,5 @@
 import type React from "react";
+import { useEffect } from "react";
 
 interface KeyBoardProps {
     incrementRow: React.Dispatch<React.SetStateAction<number>>;
@@ -13,7 +14,23 @@ export function KeyBoard({incrementRow, setAttemps, currRow}: KeyBoardProps) {
     ["ENTER","Z","X","C","V","B","N","M","⌫"]
     ];
 
-
+    useEffect( () => {
+        function handleKeyDown(event: KeyboardEvent) {
+            const key = event.key.toUpperCase();
+            if (key === "BACKSPACE") {
+                handleClick("⌫");
+            } else if (key === "ENTER") {
+                handleClick("ENTER");
+            }
+            else if (/^[A-Z]$/.test(key)) {
+                handleClick(key);
+            }
+        }
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [currRow]);
 
     function handleClick(letter: string){
         switch(letter) {
