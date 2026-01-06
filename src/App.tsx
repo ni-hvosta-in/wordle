@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-import { KeyBoard } from './keyboard/KeyBoard'
+import { KeyBoard } from './components/keyboard/KeyBoard'
+import { Row } from './components/row/Row'
 
 function App() {
 
-    const [input, setInput] = useState("")
+    const [currRow, setCurrRow] = useState(0);
+    const [attemps, setAttemps] = useState<string[]>(["", "", "", "", ""]);
     useEffect(() => {
-        console.log("Current input:", input);
-    }, [input])
+        console.log(attemps, currRow);
+    }, [attemps])
     return (
-        <>
-            <div>
-                <h1>{input}</h1>
-            </div>
-            <KeyBoard setInput={setInput} />
+        <>  
+            {Array.from({length: 5}).map((_, i) => (
+                <Row key={i} value={attemps[i]} isSelected={i == currRow}/>
+            ))} 
+            <KeyBoard  incrementRow={setCurrRow} setAttemps={setAttemps} currRow={currRow} />
         </>
     )
 }
