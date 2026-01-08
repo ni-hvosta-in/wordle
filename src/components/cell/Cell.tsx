@@ -1,11 +1,13 @@
 import "./Cell.css";
 interface CellProps {
     value: string;
+    targetValue: string;
+    isCheck: boolean;
 }
 
-export function Cell({value}: CellProps) {
+export function Cell({value, targetValue, isCheck}: CellProps) {
     return (
-        <div className="cell">
+        <div id="cell" className={value === targetValue && isCheck === true ? "correct" : ""}>
             {value}
         </div>
     )

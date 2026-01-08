@@ -44,6 +44,7 @@ export function KeyBoard({incrementRow, setAttemps, currRow}: KeyBoardProps) {
             
             case "ENTER":
                 incrementRow((prev) => prev + 1);
+                
                 break;
 
             default:
