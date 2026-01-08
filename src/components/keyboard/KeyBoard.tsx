@@ -5,14 +5,10 @@ interface KeyBoardProps {
     incrementRow: React.Dispatch<React.SetStateAction<number>>;
     setAttemps: React.Dispatch<React.SetStateAction<string[]>>;
     currRow: number;
+    KEYS: Array<string[]>;
 }
 
-export function KeyBoard({incrementRow, setAttemps, currRow}: KeyBoardProps) {
-    const KEYS: Array<string[]> = [
-    ["Q","W","E","R","T","Y","U","I","O","P"],
-    ["A","S","D","F","G","H","J","K","L"],
-    ["ENTER","Z","X","C","V","B","N","M","⌫"]
-    ];
+export function KeyBoard({incrementRow, setAttemps, currRow, KEYS}: KeyBoardProps) {
 
     useEffect( () => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -40,6 +36,7 @@ export function KeyBoard({incrementRow, setAttemps, currRow}: KeyBoardProps) {
                     newAttemps[currRow] = newAttemps[currRow].slice(0, -1);
                     return newAttemps;
                 });
+
                 break;
             
             case "ENTER":
