@@ -10,20 +10,27 @@ interface RowProps {
 
 export function Row({value, isSelected, targetWord, isCheck}: RowProps){
     
+    const letterCounts = new Map<string, number>();
+    targetWord.split("").forEach((letter) => {
+        letterCounts.set(letter, (letterCounts.get(letter) ?? 0) + 1);
+    });
     const generateCells = () => {
         
         let content = [];
         let className = ""; 
         for (let i = 0; i < 5; i++){
             className = "";
-            if (targetWord[i] == value[i] && isCheck){
-                className = "correct";
-            } else {
-                if (targetWord.includes(value[i]) && isCheck){
+            if (letterCounts.has(value[i]) && isCheck && letterCounts.get(value[i])! > 0){
+
+                
+                if (targetWord.charAt(i) == value[i]){
+                    className = "correct";
+                } else{
                     className = "includes";
                 }
+                letterCounts.set(value[i], letterCounts.get(value[i])! -1 );
+                console.log(letterCounts);
             }
-            console.log(className, value, isCheck);
             
             content.push(<Cell key={i} value={value[i]} className={className}/>)
         }
