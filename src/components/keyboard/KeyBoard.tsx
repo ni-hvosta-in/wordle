@@ -59,7 +59,7 @@ export function KeyBoard({incrementRow, setAttemps, currRow, KEYS}: KeyBoardProp
             {KEYS.map((row, i) => (
                 <div key={i}>
                     {row.map((letter, j) => (
-                        <button key={j} onClick={() => handleClick(letter)}>{letter}</button>
+                        <button key={j} onClick={() => handleClick(letter)} className={""}>{letter}</button>
                     ))}
                 </div>
             ))}
