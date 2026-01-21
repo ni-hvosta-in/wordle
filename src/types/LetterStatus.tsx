@@ -1,1 +1,1 @@
-export type LetterStatus = "correct" | "includes" | "unused";
+export type LetterStatus = "correct" | "includes" | "unused" | "wrong";

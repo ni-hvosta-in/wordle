@@ -17,6 +17,11 @@ function App() {
         ["ENTER","Z","X","C","V","B","N","M","⌫"]
     ];
 
+    const defaultKeysStatues = new Map<string, LetterStatus>();
+    KEYS.flat().forEach((key) => {
+        defaultKeysStatues.set(key, "unused");
+    })
+
     const statuses = useMemo(() => {
         const defaultStatus: LetterStatus[] = ["unused", "unused", "unused", "unused", "unused"];
         return attemps.map((attemp, i) => (
@@ -24,6 +29,7 @@ function App() {
         )) 
     }, [attemps, checks]);
 
+    const [keysStatuses, setKeysStatuses] = useState<Map<string, LetterStatus>>(defaultKeysStatues);
     useEffect(() => {
         if (currRow != 0){
             setChecks((prev) => {
@@ -31,12 +37,35 @@ function App() {
                 newChecks[currRow-1] = true;
                 return newChecks;
             });
+            setKeysStatuses((prev) => {
+                const newKeysStatuses = new Map(prev);
+                const stats: LetterStatus[] = checkWord(attemps[currRow-1]);
+                stats.forEach((stat,i) => {
+                    const oldStat = newKeysStatuses.get(attemps[currRow-1].charAt(i))!;
+                    switch(oldStat) {
+                        case "unused": 
+                            newKeysStatuses.set(attemps[currRow-1].charAt(i), stat);
+                            console.log();
+                            break;
+                        case "includes":
+
+                            if (stat == "correct"){
+                                newKeysStatuses.set(attemps[currRow-1].charAt(i), stat);
+                            }
+                            break;
+                    }
+                });
+                return newKeysStatuses;
+             })
         }
 
+        if (misteryWord === attemps[currRow-1]){
+            alert("Good job, boy");
+           newGame();
+        }
         if (currRow > 4) {
             alert("Game Over! The word was " + misteryWord);
-            setCurrRow(0);
-            setAttemps(["", "", "", "", ""]);
+            newGame();
         }
     }, [currRow])
 
@@ -60,17 +89,27 @@ function App() {
                 }
                 letterCounts.set(value[i], letterCounts.get(value[i])! -1 );
             }
+            if (!letterCounts.has(value[i])){
+                status[i] = "wrong";
+            }
         }
 
         return status;
 
+    }
+
+    function newGame(){
+        setCurrRow(0);
+        setAttemps(["", "", "", "", ""]);
+        setChecks([false, false, false, false, false]);
+        setKeysStatuses(defaultKeysStatues);
     }
     return (
         <>  
             {Array.from({length: 5}).map((_, i) => (
                 <Row key={i} value={attemps[i]} isSelected={i == currRow} status={statuses[i]}/>
             ))} 
-            <KeyBoard  incrementRow={setCurrRow} setAttemps={setAttemps} currRow={currRow} KEYS={KEYS} />
+            <KeyBoard  incrementRow={setCurrRow} setAttemps={setAttemps} currRow={currRow} KEYS={KEYS} keysStatuses={keysStatuses}/>
         </>
     )
 }

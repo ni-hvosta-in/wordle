@@ -1,14 +1,16 @@
 import type React from "react";
 import { useEffect } from "react";
-
+import type { LetterStatus } from "../../types/LetterStatus";
+import "./KeyBoard.css"
 interface KeyBoardProps {
     incrementRow: React.Dispatch<React.SetStateAction<number>>;
     setAttemps: React.Dispatch<React.SetStateAction<string[]>>;
     currRow: number;
     KEYS: Array<string[]>;
+    keysStatuses: Map<string, LetterStatus>;
 }
 
-export function KeyBoard({incrementRow, setAttemps, currRow, KEYS}: KeyBoardProps) {
+export function KeyBoard({incrementRow, setAttemps, currRow, KEYS, keysStatuses}: KeyBoardProps) {
 
     useEffect( () => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -59,7 +61,7 @@ export function KeyBoard({incrementRow, setAttemps, currRow, KEYS}: KeyBoardProp
             {KEYS.map((row, i) => (
                 <div key={i}>
                     {row.map((letter, j) => (
-                        <button key={j} onClick={() => handleClick(letter)} className={""}>{letter}</button>
+                        <button key={j} onClick={() => handleClick(letter)} className={keysStatuses.get(letter)}>{letter}</button>
                     ))}
                 </div>
             ))}
