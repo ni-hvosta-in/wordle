@@ -1,16 +1,24 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { KeyBoard } from './components/keyboard/KeyBoard'
 import { Row } from './components/row/Row'
 import type { LetterStatus } from './types/LetterStatus';
-
+import toast, { Toaster } from 'react-hot-toast';
+import type { GameStatus } from './types/GameStatus';
 function App() {
 
     const misteryWord = "APPLE";
     const [currRow, setCurrRow] = useState(0);
-    const [attemps, setAttemps] = useState<string[]>(["", "", "", "", ""]);
-    const [checks, setChecks] = useState<boolean[]>([false, false, false, false, false]);
+    const [attemps, setAttemps] = useState<string[]>(["", "", "", "", "", ""]);
+    const [currAttempt, setCurrAttempt] = useState("");
+    const [checks, setChecks] = useState<boolean[]>([false, false, false, false, false, false]);
+    const containerRef = useRef<HTMLDivElement>(null);
     
+    const [gameState, setGameState] = useState<GameStatus>("playing");
+
+    useEffect(() => {
+        containerRef.current?.focus();
+    }, []);
     const KEYS: Array<string[]> = [
         ["Q","W","E","R","T","Y","U","I","O","P"],
         ["A","S","D","F","G","H","J","K","L"],
@@ -60,14 +68,30 @@ function App() {
         }
 
         if (misteryWord === attemps[currRow-1]){
-            alert("Good job, boy");
-           newGame();
+            setGameState("won");
+        } else {
+            if (currRow > 5) {
+                setGameState("lost");
+            }
         }
-        if (currRow > 4) {
-            alert("Game Over! The word was " + misteryWord);
-            newGame();
+    }, [currRow]);
+
+    useEffect(() => {
+        if (gameState === "won") {
+            toast.success("Good job, boy");
+            setTimeout(() => {
+                newGame();
+            }, 800); // 👈 время показать зелёную строку
         }
-    }, [currRow])
+
+        if (gameState === "lost") {
+            toast.error("Game Over! The word was " + misteryWord);
+            setTimeout(() => {
+                newGame();
+            }, 800);
+        }
+    }, [gameState]);
+
 
     function checkWord(value: string): LetterStatus [] {
 
@@ -98,18 +122,61 @@ function App() {
 
     }
 
+    function handleClick(letter: string){
+        switch(letter) {
+            case "⌫":
+                setCurrAttempt((prev) => prev.slice(0, -1));
+                break;
+        
+            case "ENTER":
+                
+
+                if (currAttempt.length !== 5) {
+                    toast.error("must be 5 letters");
+                    break;
+                }
+
+                setCurrRow((prev) => prev + 1);
+                setAttemps((prev) => {
+                    const newAttemps = [...prev];
+                    newAttemps[currRow] = currAttempt;
+                    return newAttemps;
+                });
+
+                setCurrAttempt("");
+                break;
+
+            default:
+                setCurrAttempt((prev) => prev.length < 5 ? (prev || "") + letter : prev);
+        }
+        
+    }
+
     function newGame(){
         setCurrRow(0);
-        setAttemps(["", "", "", "", ""]);
-        setChecks([false, false, false, false, false]);
+        setAttemps(["", "", "", "", "", ""]);
+        setChecks([false, false, false, false, false, false]);
         setKeysStatuses(defaultKeysStatues);
+        setGameState("playing");
+        setCurrAttempt("");
     }
+
     return (
-        <>  
-            {Array.from({length: 5}).map((_, i) => (
-                <Row key={i} value={attemps[i]} isSelected={i == currRow} status={statuses[i]}/>
-            ))} 
-            <KeyBoard  incrementRow={setCurrRow} setAttemps={setAttemps} currRow={currRow} KEYS={KEYS} keysStatuses={keysStatuses}/>
+        <>
+            <Toaster position='top-center'/>
+            <div ref={containerRef}tabIndex={0} className="game-container"
+    onKeyDown={(e) => {
+                const key = e.key.toUpperCase();
+
+                if (key === "BACKSPACE") handleClick("⌫");
+                else if (key === "ENTER") handleClick("ENTER");
+                else if (/^[A-Z]$/.test(key.toUpperCase())) handleClick(key.toUpperCase());
+            }}>  
+                {Array.from({length: 6}).map((_, i) => (
+                    <Row key={i} value={i == currRow ? currAttempt : attemps[i]} isSelected={i == currRow} status={statuses[i]}/>
+                ))} 
+                <KeyBoard  handleClick={handleClick} KEYS={KEYS} keysStatuses={keysStatuses}/>
+            </div>
         </>
     )
 }
