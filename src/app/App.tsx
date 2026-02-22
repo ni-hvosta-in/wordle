@@ -4,6 +4,8 @@ import { Toaster } from 'react-hot-toast';
 import { StartPage } from "../pages/startPage/StartPage"
 import { GamePage } from "../pages/gamePage/GamePage"
 import { AuthPage } from "../pages/authPage/AuthPage";
+import { PublicRoute } from "./guards/PublicRoute";
+import { ProtectedRoute } from "./guards/ProtectedRoute";
 
 function App() {
 
@@ -14,11 +16,19 @@ function App() {
         }, 
         {
             path: "/game", 
-            element: <GamePage/>
+            element: (
+                <ProtectedRoute>
+                    <GamePage/>
+                </ProtectedRoute>
+            )
         }, 
         {
             path: "/login",
-            element: <AuthPage/>
+            element: (
+                <PublicRoute>
+                    <AuthPage/>
+                </PublicRoute>
+            )
         }
     ])
     return (

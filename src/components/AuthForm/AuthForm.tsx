@@ -33,10 +33,14 @@ export function AuthForm() {
                 password: password
             });
 
-            console.log(response);
+            
+            const token = response.data.token;
+            localStorage.setItem("token", token);
+            console.log(token);
             notification.success({
-                message: "Success",
+                title: "Success",
             });
+            
             navigate("/game");
 
             
@@ -53,7 +57,7 @@ export function AuthForm() {
             }
 
             notification.error({
-                message: "Auth error",
+                title: "Auth error",
                 description: errorMessage
             });
         }
