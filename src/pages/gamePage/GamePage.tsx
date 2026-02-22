@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import './App.css'
-import { KeyBoard } from './components/keyboard/KeyBoard'
-import { Row } from './components/row/Row'
-import type { LetterStatus } from './types/LetterStatus';
-import toast, { Toaster } from 'react-hot-toast';
-import type { GameStatus } from './types/GameStatus';
-function App() {
+import { KeyBoard } from '../../components/keyboard/KeyBoard'
+import { Row } from '../../components/row/Row'
+import type { LetterStatus } from '../../types/LetterStatus';
+import toast from 'react-hot-toast';
+import type { GameStatus } from '../..//types/GameStatus';
 
+export function GamePage(){
     const misteryWord = "APPLE";
     const [currRow, setCurrRow] = useState(0);
     const [attemps, setAttemps] = useState<string[]>(["", "", "", "", "", ""]);
@@ -163,7 +162,7 @@ function App() {
 
     return (
         <>
-            <Toaster position='top-center'/>
+            
             <div ref={containerRef}tabIndex={0} className="game-container"
     onKeyDown={(e) => {
                 const key = e.key.toUpperCase();
@@ -180,5 +179,3 @@ function App() {
         </>
     )
 }
-
-export default App
