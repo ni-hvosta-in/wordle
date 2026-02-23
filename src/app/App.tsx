@@ -15,7 +15,7 @@ function App() {
             element: <StartPage/>
         }, 
         {
-            path: "/game", 
+            path: "/game/:mode", 
             element: (
                 <ProtectedRoute>
                     <GamePage/>

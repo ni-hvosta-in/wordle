@@ -80,7 +80,7 @@ export function GamePage(){
             toast.success("Good job, boy");
             setTimeout(() => {
                 newGame();
-            }, 800); // 👈 время показать зелёную строку
+            }, 800); 
         }
 
         if (gameState === "lost") {
@@ -95,7 +95,7 @@ export function GamePage(){
     function checkWord(value: string): LetterStatus [] {
 
         const status: LetterStatus[] = ["unused", "unused", "unused", "unused", "unused"];
-
+        
         const letterCounts = new Map<string, number>();
         misteryWord.split("").forEach((letter) => {
             letterCounts.set(letter, (letterCounts.get(letter) ?? 0) + 1);

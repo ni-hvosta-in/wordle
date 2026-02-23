@@ -11,10 +11,14 @@ const Wrapper = styled.div`
 export function StartPage(){
 
     const navigate = useNavigate();
+    const token = localStorage.getItem("token");
+    console.log(token);
     return (
         <Wrapper>
-            <Button onClick={() => navigate("/game")}>Daily game</Button>
-            <Button onClick={() => navigate("/login")}>Login</Button>
+            <Button onClick={() => navigate("/game/daily")}>Daily game</Button>
+            <Button onClick={() => token ? navigate("/game/personal") : navigate("/login")}>
+                {token? "Personal game" : "Login"}
+            </Button>
         </Wrapper>
     )
 }
