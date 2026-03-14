@@ -24,4 +24,9 @@ public class GameController {
     public ResponseEntity<GameResponse> getDailyWord(@Valid @RequestBody GameRequest gameRequest){
         return ResponseEntity.ok(new GameResponse(gameService.checkDaily(gameRequest.attempt(), gameRequest.level())));
     }
+
+    @GetMapping("/daily/word")
+    public ResponseEntity<String> getDailyWordWord(@RequestParam Level level){
+        return ResponseEntity.ok(wordService.getDailyWord(level));
+    }
 }

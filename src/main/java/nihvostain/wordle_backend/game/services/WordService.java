@@ -24,6 +24,11 @@ public class WordService {
         }
     }
 
+    private void shuffled(ArrayList<String> words){
+        long seed = Long.parseLong(System.getenv("WORD_GAME_SEED"));
+        Random random = new Random(seed);
+        Collections.shuffle(words, random);
+    }
     private void loadWords(Level level) throws FileNotFoundException {
 
         String fileName = "words/%s.txt".formatted(level.toString().toLowerCase());
@@ -42,6 +47,7 @@ public class WordService {
             dictionary.add(word);
             words.add(word);
         }
+        shuffled(words);
         wordsToGenerate.put(level, words);
     }
 

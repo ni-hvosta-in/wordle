@@ -1,5 +1,5 @@
 package nihvostain.wordle_backend.game.dto;
 
 public record GameResponse(
-        String [] statues
+        String [] statuses
 ) {}

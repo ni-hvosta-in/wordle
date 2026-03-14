@@ -1,8 +1,10 @@
 package nihvostain.wordle_backend.user;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 
+@Getter
 @Entity
 @Table(name = "users")
 public class User {
@@ -24,15 +26,4 @@ public class User {
 
     public User() {}
 
-    public long getId() {
-        return id;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
 }
