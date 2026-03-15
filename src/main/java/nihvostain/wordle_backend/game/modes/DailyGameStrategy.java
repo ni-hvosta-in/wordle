@@ -4,9 +4,10 @@ import nihvostain.wordle_backend.game.GameMode;
 import nihvostain.wordle_backend.game.Level;
 import nihvostain.wordle_backend.game.services.WordChecker;
 import nihvostain.wordle_backend.game.services.WordService;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class DailyGameStrategy implements GameModeStrategy {
 
     WordService wordService;

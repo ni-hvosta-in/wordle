@@ -6,7 +6,9 @@ import nihvostain.wordle_backend.game.entity.UserGame;
 import nihvostain.wordle_backend.game.entity.UserGameRepository;
 import nihvostain.wordle_backend.game.services.WordChecker;
 import nihvostain.wordle_backend.game.services.WordService;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PersonalGameStrategy implements GameModeStrategy {
 
     UserGameRepository userGameRepository;
