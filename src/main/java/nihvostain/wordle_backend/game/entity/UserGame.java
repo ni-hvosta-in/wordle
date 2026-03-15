@@ -3,6 +3,7 @@ package nihvostain.wordle_backend.game.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import nihvostain.wordle_backend.game.Level;
 import nihvostain.wordle_backend.user.User;
 
 
@@ -27,6 +28,17 @@ public class UserGame {
     }
 
     public UserGame() {
+
+    }
+
+    public int getIndexByLevel(Level level){
+
+        return switch (level){
+            case A1 -> a1Index;
+            case A2 -> a2Index;
+            case B1 -> b1Index;
+            case B2 -> b2Index;
+        };
 
     }
 }

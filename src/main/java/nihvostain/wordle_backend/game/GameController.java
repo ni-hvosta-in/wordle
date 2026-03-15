@@ -23,7 +23,7 @@ public class GameController {
 
     @PostMapping("/daily/check")
     public ResponseEntity<GameResponse> checkDailyWord(@Valid @RequestBody GameRequest gameRequest){
-        return ResponseEntity.ok(new GameResponse(gameService.checkDaily(gameRequest.attempt(), gameRequest.level())));
+        return ResponseEntity.ok(new GameResponse(gameService.check(GameMode.DAILY, null,gameRequest.attempt(), gameRequest.level())));
     }
 
     @GetMapping("/daily/word")
