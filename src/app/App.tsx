@@ -15,13 +15,21 @@ function App() {
             element: <StartPage/>
         }, 
         {
-            path: "/game/:mode", 
+            path: "/game/personal", 
             element: (
                 <ProtectedRoute>
                     <GamePage/>
                 </ProtectedRoute>
             )
         }, 
+        {
+            path : "/game/daily",
+            element: (
+                <PublicRoute>
+                    <GamePage/>
+                </PublicRoute>
+            )
+        },
         {
             path: "/login",
             element: (

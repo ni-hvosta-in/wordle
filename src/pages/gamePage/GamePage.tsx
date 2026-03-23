@@ -8,9 +8,12 @@ import { api } from '../../app/Api';
 import { useNavigate } from 'react-router-dom';
 import type { Level } from './Level';
 import { Button, Dropdown, type MenuProps } from 'antd';
+import axios from 'axios';
+import type { GameType } from './GameType';
 
 export function GamePage(){
 
+    const [gameType, setGameType] = useState<GameType>("daily");
     const [currRow, setCurrRow] = useState(0);
     const [attemps, setAttemps] = useState<string[]>(["", "", "", "", "", ""]);
     const [currAttempt, setCurrAttempt] = useState("");
@@ -31,8 +34,17 @@ export function GamePage(){
     });
 
     useEffect(() => {
+        setGameState("playing");
+        newGame();
+    }, [level]);
+
+    useEffect(() => {
         containerRef.current?.focus();
     }, []);
+
+    useEffect(() => {
+        setGameType(window.location.pathname.includes("personal") ? "personal" : "daily");
+    }, [])
 
     const navigate = useNavigate();
     const KEYS: Array<string[]> = [
@@ -49,10 +61,24 @@ export function GamePage(){
     const [keysStatuses, setKeysStatuses] = useState<Map<string, LetterStatus>>(defaultKeysStatues);
 
     async function checkWord(value: string): Promise<LetterStatus[]> {
-        const response = await api.post("/game/daily/check", {
-            attempt: value,
-            level: level
-        });
+
+        let response;
+        if (gameType == "daily"){
+            response = await api.post("/game/daily/check", {
+                attempt: value,
+                level: level
+            });
+        } else {
+            response = await api.post("/game/personal/check", {
+                attempt: value,
+                level: level
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+        }
         return response.data.statuses;
     }
 
@@ -79,14 +105,34 @@ export function GamePage(){
                     return newAttemps;
                 });
 
-                const result = await checkWord(currAttempt);
+                let result : LetterStatus[] = [];
+                try{
+                    result = await checkWord(currAttempt);
+                } catch (error){
 
+                    
+                    if (axios.isAxiosError(error)){
+                        console.log(error.response);
+                        if (error.response?.status === 401) {
+                            toast.error("Session expired. Please log in again.");
+                            localStorage.removeItem("token");
+                            navigate("/login");
+                        }
+                        if (error.response?.status === 400) {
+                            toast.error("Word not in dictionary");
+                        } else {
+                            toast.error("An error occurred. Please try again.");
+                        }
+                    }
+                    setCurrAttempt("");
+                    return;
+                }
+                
                 setStatuses((prev) => {
                     const newStatuses = [...prev];
                     newStatuses[attemptIndex] = result;
                     return newStatuses;
                 });
-                
 
 
                 setKeysStatuses((prev) => {

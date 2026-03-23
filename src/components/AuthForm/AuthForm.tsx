@@ -41,7 +41,7 @@ export function AuthForm() {
                 title: "Success",
             });
             
-            navigate("/game");
+            navigate("/");
 
             
         } catch (error) {
