@@ -24,7 +24,7 @@ public class GameService {
         }
     }
 
-    public String [] check (GameMode gameMode, Long id, String attempt, Level level) throws NonExistentWordException {
+    public LetterStatus [] check (GameMode gameMode, Long id, String attempt, Level level) throws NonExistentWordException {
 
         if (!wordService.dictionaryContains(attempt)){
             throw new NonExistentWordException("Such a word does not exist");

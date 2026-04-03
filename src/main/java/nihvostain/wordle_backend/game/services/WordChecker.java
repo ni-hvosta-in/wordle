@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Service
 public class WordChecker {
-    public String [] checkWord(String attempt, String target) {
+    public LetterStatus [] checkWord(String attempt, String target) {
 
         char [] targetChars = target.toCharArray();
         char [] attemptChars = attempt.toCharArray();
@@ -19,20 +19,20 @@ public class WordChecker {
         }
 
         System.out.println(letterCount);
-        String [] statuses = new String [attempt.length()];
+        LetterStatus [] statuses = new LetterStatus [attempt.length()];
 
         for (int i = 0; i < attemptChars.length; i++) {
 
             if (letterCount.containsKey(attemptChars[i]) && letterCount.get(attemptChars[i]) > 0) {
                 if (targetChars[i] == attemptChars[i]) {
-                    statuses[i] = LetterStatus.CORRECT.getStatus();
+                    statuses[i] = LetterStatus.CORRECT;
                 } else {
-                    statuses[i] = LetterStatus.INCLUDES.getStatus();
+                    statuses[i] = LetterStatus.INCLUDES;
                 }
                 letterCount.put(attemptChars[i], letterCount.get(attemptChars[i]) - 1);
             }
             if (!letterCount.containsKey(attemptChars[i])) {
-                statuses[i] = LetterStatus.WRONG.getStatus();
+                statuses[i] = LetterStatus.WRONG;
             }
         }
 

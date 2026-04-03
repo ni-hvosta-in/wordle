@@ -26,7 +26,7 @@ public class PersonalGameStrategy implements GameModeStrategy {
     }
     @Override
     @Transactional
-    public String[] check(Long id, String attempt, Level level) {
+    public LetterStatus[] check(Long id, String attempt, Level level) {
 
         UserGame userGame = userGameRepository.findByUserId(id).orElseThrow(
                 () -> new RuntimeException("User game not found")
@@ -34,8 +34,8 @@ public class PersonalGameStrategy implements GameModeStrategy {
 
         int index = userGame.getIndexByLevel(level);
         String target = wordService.getPersonalWord(level, index);
-        String [] statuses = wordChecker.checkWord(target, attempt);
-        if (Arrays.stream(statuses).allMatch((status) -> status.equals(LetterStatus.CORRECT.getStatus()))) {
+        LetterStatus [] statuses = wordChecker.checkWord(target, attempt);
+        if (Arrays.stream(statuses).allMatch((status) -> status.equals(LetterStatus.CORRECT))) {
             userGame.setIndexByLevel(level, index + 1);
         }
         return wordChecker.checkWord(attempt, target);

@@ -17,7 +17,6 @@ public class UserGame {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true, nullable = false)
     private User user;
-
     private int a1Index;
     private int a2Index;
     private int b1Index;

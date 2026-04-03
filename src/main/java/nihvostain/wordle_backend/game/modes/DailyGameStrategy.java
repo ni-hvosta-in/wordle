@@ -1,6 +1,7 @@
 package nihvostain.wordle_backend.game.modes;
 
 import nihvostain.wordle_backend.game.GameMode;
+import nihvostain.wordle_backend.game.LetterStatus;
 import nihvostain.wordle_backend.game.Level;
 import nihvostain.wordle_backend.game.services.WordChecker;
 import nihvostain.wordle_backend.game.services.WordService;
@@ -19,7 +20,7 @@ public class DailyGameStrategy implements GameModeStrategy {
     }
 
     @Override
-    public String[] check(Long id, String attempt, Level level) {
+    public LetterStatus[] check(Long id, String attempt, Level level) {
         String target = wordService.getDailyWord(level);
         return wordChecker.checkWord(attempt, target);
     }
