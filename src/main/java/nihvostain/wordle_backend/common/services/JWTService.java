@@ -4,19 +4,27 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.annotation.PostConstruct;
 import nihvostain.wordle_backend.user.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
 public class JWTService {
-    private final String secretKey = "secret";
-    private final Algorithm algorithm = Algorithm.HMAC256(secretKey);
-    private final JWTVerifier verifier = JWT.require(algorithm)
-            .withIssuer("backend")
-            .build();
+    @Value("${jwt.secret}")
+    private String secretKey;
+    private Algorithm algorithm;
+    private JWTVerifier verifier;
 
+    @PostConstruct
+    public void init (){
+        algorithm = Algorithm.HMAC256(secretKey);
+        verifier = JWT.require(algorithm)
+                .withIssuer("backend")
+                .build();
+    }
     public String generateToken(User user){
         return JWT.create()
                 .withSubject(Long.toString(user.getId()))

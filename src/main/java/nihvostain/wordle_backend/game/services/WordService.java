@@ -3,6 +3,7 @@ package nihvostain.wordle_backend.game.services;
 import jakarta.annotation.PostConstruct;
 import nihvostain.wordle_backend.game.Level;
 import nihvostain.wordle_backend.user.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -17,6 +18,9 @@ public class WordService {
     private final HashMap<Level, ArrayList<String>> wordsToGenerate = new HashMap<>();
     private final Set<String> dictionary = new HashSet<>();
 
+    @Value("${game.seed}")
+    private String seed;
+
     @PostConstruct
     void init() throws FileNotFoundException {
         for (Level level: Level.values()){
@@ -26,10 +30,11 @@ public class WordService {
     }
 
     private void shuffled(ArrayList<String> words){
-        long seed = Long.parseLong(System.getenv("WORD_GAME_SEED"));
+        long seed = Long.parseLong(this.seed);
         Random random = new Random(seed);
         Collections.shuffle(words, random);
     }
+
     private void loadWords(Level level) throws FileNotFoundException {
 
         String fileName = "words/%s.txt".formatted(level.toString().toLowerCase());
