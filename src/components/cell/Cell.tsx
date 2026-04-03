@@ -7,7 +7,7 @@ interface CellProps {
 
 export function Cell({value, className}: CellProps) {
     return (
-        <div id="cell" className={className}>
+        <div id="cell" className={className.toLowerCase()}>
             {value}
         </div>
     )

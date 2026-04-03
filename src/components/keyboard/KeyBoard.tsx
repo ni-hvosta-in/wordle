@@ -14,7 +14,7 @@ export function KeyBoard({handleClick, KEYS, keysStatuses}: KeyBoardProps) {
             {KEYS.map((row, i) => (
                 <div key={i}>
                     {row.map((letter, j) => (
-                        <button key={j} onClick={() => handleClick(letter)} className={"keyboard-" + keysStatuses.get(letter)}>{letter}</button>
+                        <button key={j} onClick={() => handleClick(letter)} className={"keyboard-" + keysStatuses.get(letter)?.toLowerCase()}>{letter}</button>
                     ))}
                 </div>
             ))}

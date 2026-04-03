@@ -18,7 +18,7 @@ export function GamePage(){
     const [attemps, setAttemps] = useState<string[]>(["", "", "", "", "", ""]);
     const [currAttempt, setCurrAttempt] = useState("");
     const [statuses, setStatuses] = useState<LetterStatus[][]>(
-        Array(6).fill(["unused","unused","unused","unused","unused"])
+        Array(6).fill(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"])
     );
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -55,7 +55,7 @@ export function GamePage(){
 
     const defaultKeysStatues = new Map<string, LetterStatus>();
     KEYS.flat().forEach((key) => {
-        defaultKeysStatues.set(key, "unused");
+        defaultKeysStatues.set(key, "UNUSED");
     });
 
     const [keysStatuses, setKeysStatuses] = useState<Map<string, LetterStatus>>(defaultKeysStatues);
@@ -112,7 +112,7 @@ export function GamePage(){
 
                     
                     if (axios.isAxiosError(error)){
-                        console.log(error.response);
+                        console.log(error.code);
                         if (error.response?.status === 401) {
                             toast.error("Session expired. Please log in again.");
                             localStorage.removeItem("token");
@@ -128,6 +128,7 @@ export function GamePage(){
                     return;
                 }
                 
+                console.log(result);
                 setStatuses((prev) => {
                     const newStatuses = [...prev];
                     newStatuses[attemptIndex] = result;
@@ -140,10 +141,10 @@ export function GamePage(){
 
                     result.forEach((stat,i) => {
                         const letter = currAttempt.charAt(i);
-                        const oldStat = newKeysStatuses.get(letter) ?? "unused";
+                        const oldStat = newKeysStatuses.get(letter) ?? "UNUSED";
 
-                        if (oldStat === "unused" || 
-                           (oldStat === "includes" && stat === "correct")) {
+                        if (oldStat === "UNUSED" || 
+                           (oldStat === "INCLUDES" && stat === "CORRECT")) {
                             newKeysStatuses.set(letter, stat);
                         }
                     });
@@ -151,12 +152,12 @@ export function GamePage(){
                     return newKeysStatuses;
                 });
 
-                if (result.every((status) => status === "correct")) {
+                if (result.every((status) => status === "CORRECT")) {
                     toast.success("You win!");
                     setGameState("won");
                     return;
                 } else if (currRow === 5) {
-                    const response = await api.get("/game/daily/word", {params: {level: level}});
+                    const response = await api.get(`/game/${gameType}/word`, {params: {level: level}});
                     toast.error("You lost! The word was: " + "" + response.data);
                     setGameState("lost");
                     return;
@@ -174,7 +175,7 @@ export function GamePage(){
     function newGame(){
         setCurrRow(0);
         setAttemps(["", "", "", "", "", ""]);
-        setStatuses(Array(6).fill(["unused","unused","unused","unused","unused"]));
+        setStatuses(Array(6).fill(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"]));
         setKeysStatuses(defaultKeysStatues);
         setGameState("playing");
         setCurrAttempt("");
