@@ -1,5 +1,5 @@
 
-import {AuthForm} from "../../components/AuthForm/AuthForm"
+import {AuthForm} from "../ui/AuthForm/AuthForm"
 export function AuthPage(){
 
     return (

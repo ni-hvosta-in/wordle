@@ -1,21 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
-import { KeyBoard } from '../../components/keyboard/KeyBoard'
-import { Row } from '../../components/row/Row'
-import type { LetterStatus } from '../../types/LetterStatus';
+import { KeyBoard } from '../ui/keyboard/KeyBoard'
+import { Row } from '../ui/row/Row'
+import type { LetterStatus } from '../model/LetterStatus';
 import toast from 'react-hot-toast';
-import type { GameStatus } from '../..//types/GameStatus';
-import { api } from '../../app/Api';
+import type { GameStatus } from '../model/GameStatus';
+import { api } from '../../../app/Api';
 import { useNavigate } from 'react-router-dom';
-import type { Level } from './Level';
+import type { Level } from '../model/Level';
 import { Button, Dropdown, type MenuProps } from 'antd';
-import axios from 'axios';
-import type { GameType } from './GameType';
+import axios, { Axios, AxiosError } from 'axios';
+import type { GameType } from '../model/GameType';
+import { checkWord } from '../api/checkWord';
+import { getAttempts } from '../api/getAttempts';
+import type { Attempt } from '../model/Attempt';
 
 export function GamePage(){
 
     const [gameType, setGameType] = useState<GameType>("daily");
     const [currRow, setCurrRow] = useState(0);
-    const [attemps, setAttemps] = useState<string[]>(["", "", "", "", "", ""]);
+    const [attempts, setAttempts] = useState<string[]>(["", "", "", "", "", ""]);
     const [currAttempt, setCurrAttempt] = useState("");
     const [statuses, setStatuses] = useState<LetterStatus[][]>(
         Array(6).fill(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"])
@@ -46,6 +49,45 @@ export function GamePage(){
         setGameType(window.location.pathname.includes("personal") ? "personal" : "daily");
     }, [])
 
+    useEffect(() => {
+        const loadAttempts = async () => {
+            if (gameType === "personal") {
+                try {
+                    const userAttempts: Attempt[] = await getAttempts(level, localStorage.getItem("token") || "");
+
+                    const newAttempts = userAttempts.map(a => a.word);
+                    const newStatuses = userAttempts.map(a => a.statuses);
+
+                    const rows = Math.min(newAttempts.length, 6);
+                    setCurrRow(rows);
+
+                    for (let i = 0; i < 6 - rows; i++) {
+                        newAttempts.push("");
+                        newStatuses.push(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"]);
+                    }
+
+                    setAttempts(newAttempts);
+                    setStatuses(newStatuses);
+
+                } catch (error) {
+
+                    if (axios.isAxiosError(error)) {
+                        if (error.response?.status === 401) {
+                            toast.error("Session expired. Please log in again.");
+                            localStorage.removeItem("token");
+                            navigate("/login");
+                            return;
+                        }
+                    }
+
+                    toast.error("An error occurred. Please try again.");
+                }
+            }
+        };
+        
+        loadAttempts();
+    }, []);
+
     const navigate = useNavigate();
     const KEYS: Array<string[]> = [
         ["Q","W","E","R","T","Y","U","I","O","P"],
@@ -58,30 +100,10 @@ export function GamePage(){
         defaultKeysStatues.set(key, "UNUSED");
     });
 
+
     const [keysStatuses, setKeysStatuses] = useState<Map<string, LetterStatus>>(defaultKeysStatues);
 
-    async function checkWord(value: string): Promise<LetterStatus[]> {
-
-        let response;
-        if (gameType == "daily"){
-            response = await api.post("/game/daily/check", {
-                attempt: value,
-                level: level
-            });
-        } else {
-            response = await api.post("/game/personal/check", {
-                attempt: value,
-                level: level
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-        }
-        return response.data.statuses;
-    }
-
+    
     async function handleClick(letter: string){
 
         switch(letter) {
@@ -99,25 +121,27 @@ export function GamePage(){
 
                 const attemptIndex = currRow; 
 
-                setAttemps((prev) => {
-                    const newAttemps = [...prev];
-                    newAttemps[attemptIndex] = currAttempt;
-                    return newAttemps;
+                setAttempts((prev) => {
+                    const newAttempts = [...prev];
+                    newAttempts[attemptIndex] = currAttempt;
+                    return newAttempts;
                 });
 
                 let result : LetterStatus[] = [];
                 try{
-                    result = await checkWord(currAttempt);
+                    result = await checkWord(currAttempt, gameType, level);
                 } catch (error){
 
-                    
+
                     if (axios.isAxiosError(error)){
                         console.log(error.code);
+                        
                         if (error.response?.status === 401) {
                             toast.error("Session expired. Please log in again.");
                             localStorage.removeItem("token");
                             navigate("/login");
                         }
+
                         if (error.response?.status === 400) {
                             toast.error("Word not in dictionary");
                         } else {
@@ -174,7 +198,7 @@ export function GamePage(){
 
     function newGame(){
         setCurrRow(0);
-        setAttemps(["", "", "", "", "", ""]);
+        setAttempts(["", "", "", "", "", ""]);
         setStatuses(Array(6).fill(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"]));
         setKeysStatuses(defaultKeysStatues);
         setGameState("playing");
@@ -203,7 +227,7 @@ export function GamePage(){
             {Array.from({length: 6}).map((_, i) => (
                 <Row
                     key={i}
-                    value={i === currRow ? currAttempt : attemps[i]}
+                    value={i === currRow ? currAttempt : attempts[i]}
                     isSelected={i === currRow}
                     status={statuses[i]}  
                 />

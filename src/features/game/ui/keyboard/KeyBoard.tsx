@@ -1,4 +1,4 @@
-import type { LetterStatus } from "../../types/LetterStatus";
+import type { LetterStatus } from "../../model/LetterStatus";
 import "./KeyBoard.css"
 interface KeyBoardProps {
 

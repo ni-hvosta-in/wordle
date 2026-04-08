@@ -1,4 +1,4 @@
-import type { LetterStatus } from "../../types/LetterStatus";
+import type { LetterStatus } from "../../model/LetterStatus";
 import { Cell } from "../cell/Cell";
 import "./Row.css";
 interface RowProps {

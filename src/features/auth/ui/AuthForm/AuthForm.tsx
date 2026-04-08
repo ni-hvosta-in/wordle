@@ -2,7 +2,7 @@ import React, {useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { AuthType } from "./AuthType";
 import "./AuthForm.css";
-import { api } from "../../app/Api";
+import { api } from "../../../../app/Api";
 import { notification } from "antd";
 import axios from "axios";
 export function AuthForm() {

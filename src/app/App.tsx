@@ -1,9 +1,9 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import "./App.css"
 import { Toaster } from 'react-hot-toast';
-import { StartPage } from "../pages/startPage/StartPage"
-import { GamePage } from "../pages/gamePage/GamePage"
-import { AuthPage } from "../pages/authPage/AuthPage";
+import { StartPage } from "../features/start/pages/StartPage"
+import { GamePage } from "../features/game/pages/GamePage"
+import { AuthPage } from "../features/auth/pages/AuthPage";
 import { PublicRoute } from "./guards/PublicRoute";
 import { ProtectedRoute } from "./guards/ProtectedRoute";
 
