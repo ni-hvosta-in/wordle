@@ -13,6 +13,7 @@ import type { GameType } from '../model/GameType';
 import { checkWord } from '../api/checkWord';
 import { getAttempts } from '../api/getAttempts';
 import type { Attempt } from '../model/Attempt';
+import { getWord } from '../api/getWord';
 
 export function GamePage(){
 
@@ -20,14 +21,29 @@ export function GamePage(){
     const [currRow, setCurrRow] = useState(0);
     const [attempts, setAttempts] = useState<string[]>(["", "", "", "", "", ""]);
     const [currAttempt, setCurrAttempt] = useState("");
+    const [gameState, setGameState] = useState<GameStatus>("playing");
+
+
     const [statuses, setStatuses] = useState<LetterStatus[][]>(
         Array(6).fill(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"])
     );
 
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [gameState, setGameState] = useState<GameStatus>("playing");
-    const [level, setLevel] = useState<Level>("B1");
+    const KEYS: Array<string[]> = [
+        ["Q","W","E","R","T","Y","U","I","O","P"],
+        ["A","S","D","F","G","H","J","K","L"],
+        ["ENTER","Z","X","C","V","B","N","M","⌫"]
+    ];
+    const defaultKeysStatues = new Map<string, LetterStatus>();
+    
+    KEYS.flat().forEach((key) => {
+        defaultKeysStatues.set(key, "UNUSED");
+    });
 
+    const [keysStatuses, setKeysStatuses] = useState<Map<string, LetterStatus>>(defaultKeysStatues);
+    
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const [level, setLevel] = useState<Level>("B1");
     const items: MenuProps['items'] = ["A1", "A2", "B1", "B2"].map((level) => {
         return ({
             key: level,
@@ -45,14 +61,16 @@ export function GamePage(){
         containerRef.current?.focus();
     }, []);
 
-    useEffect(() => {
-        setGameType(window.location.pathname.includes("personal") ? "personal" : "daily");
-    }, [])
 
     useEffect(() => {
+        
+        let type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
+        setGameType(type);
         const loadAttempts = async () => {
-            if (gameType === "personal") {
+            if (type == "personal") {
                 try {
+
+                    console.log("nem");
                     const userAttempts: Attempt[] = await getAttempts(level, localStorage.getItem("token") || "");
 
                     const newAttempts = userAttempts.map(a => a.word);
@@ -84,24 +102,11 @@ export function GamePage(){
                 }
             }
         };
-        
+
         loadAttempts();
     }, []);
 
     const navigate = useNavigate();
-    const KEYS: Array<string[]> = [
-        ["Q","W","E","R","T","Y","U","I","O","P"],
-        ["A","S","D","F","G","H","J","K","L"],
-        ["ENTER","Z","X","C","V","B","N","M","⌫"]
-    ];
-
-    const defaultKeysStatues = new Map<string, LetterStatus>();
-    KEYS.flat().forEach((key) => {
-        defaultKeysStatues.set(key, "UNUSED");
-    });
-
-
-    const [keysStatuses, setKeysStatuses] = useState<Map<string, LetterStatus>>(defaultKeysStatues);
 
     
     async function handleClick(letter: string){
@@ -130,6 +135,7 @@ export function GamePage(){
                 let result : LetterStatus[] = [];
                 try{
                     result = await checkWord(currAttempt, gameType, level);
+                    console.log(currRow);
                 } catch (error){
 
 
@@ -181,8 +187,8 @@ export function GamePage(){
                     setGameState("won");
                     return;
                 } else if (currRow === 5) {
-                    const response = await api.get(`/game/${gameType}/word`, {params: {level: level}});
-                    toast.error("You lost! The word was: " + "" + response.data);
+                    const word = await getWord(gameType, level);
+                    toast.error("You lost! The word was: " + "" + word);
                     setGameState("lost");
                     return;
                 }

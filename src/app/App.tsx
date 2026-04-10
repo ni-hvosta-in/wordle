@@ -25,9 +25,7 @@ function App() {
         {
             path : "/game/daily",
             element: (
-                <PublicRoute>
                     <GamePage/>
-                </PublicRoute>
             )
         },
         {
