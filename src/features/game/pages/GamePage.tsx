@@ -111,6 +111,9 @@ export function GamePage(){
     
     async function handleClick(letter: string){
 
+        if (gameState != "playing"){
+            return;
+        }
         switch(letter) {
 
             case "⌫":
