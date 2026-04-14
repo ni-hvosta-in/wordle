@@ -1,0 +1,14 @@
+.keyboard-correct {
+    background-color: #6aaa64;
+    color: white;
+}
+
+.keyboard-includes {
+    background-color: #e2f139;
+    color: black;
+}
+
+.keyboard-wrong {
+    background-color: rgb(99, 102, 105);
+    color: black;
+}

@@ -1,0 +1,15 @@
+.row-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#row {
+    display: inline-flex;
+    flex-direction: row;
+}
+
+.selected {
+    border: 2px solid #eb0505;
+    padding: 2px;
+}

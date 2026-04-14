@@ -1,0 +1,20 @@
+#cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.correct {
+    background-color: #6aaa64;
+    color: white;
+}
+
+.includes {
+    background-color: #f5fd03;
+    color: black;
+}
