@@ -1,73 +1,122 @@
-# React + TypeScript + Vite
+# 🚀 Wordle App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📖 About
 
-Currently, two official plugins are available:
+This project is a Wordle-like game designed to help improve English vocabulary.
+Players guess a hidden word while receiving feedback after each attempt.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The game includes **difficulty levels based on English proficiency**, allowing users to practice words appropriate to their level.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🎮 Game Rules
 
-## Expanding the ESLint configuration
+* You need to guess a hidden English word within a limited number of attempts
+* After each guess, you receive feedback:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+  * 🟩 correct letter in the correct position
+  * 🟨 correct letter in the wrong position
+  * ⬜ letter is not in the word
+* The number of attempts is limited (default: 6)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🎯 Difficulty Levels
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+The game uses English proficiency levels based on the CEFR standard:
+
+* **A1 (Beginner)** — very basic everyday words
+* **A2 (Elementary)** — simple vocabulary used in common situations
+* **B1 (Intermediate)** — more complex and descriptive words
+* **B2 (Upper-Intermediate)** — advanced vocabulary with less frequent usage
+
+This system helps players gradually improve their English skills by practicing words appropriate to their level.
+
+
+---
+
+## 📦 Stack
+
+* Backend: Java + Spring Boot
+* Frontend: React + TypeScript
+* Database: PostgreSQL
+* Docker
+
+---
+
+## 🔧 Development (recommended)
+
+### 1. Run database
+
+```bash
+docker-compose up postgres
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Database will be available at:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+localhost:5433
+```
+
+---
+
+### 2. Run backend
+
+Start from IDE (IntelliJ) or:
+
+```bash
+./gradlew bootRun
+```
+
+---
+
+### 3. Run frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend will be available at:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 📦 Run with Docker
+
+```bash
+docker-compose up --build
+```
+
+---
+
+### 🌐 Access
+
+* Frontend: http://localhost:3000
+* Backend: http://localhost:8080
+
+---
+
+## ⚙️ Environment variables
+
+Backend uses:
+
+```
+SPRING_DATASOURCE_URL
+SPRING_DATASOURCE_USERNAME
+SPRING_DATASOURCE_PASSWORD
+JWT_SECRET
+WORD_GAME_SEED
+```
+
+---
+
+## 🧠 Notes
+
+* The game is intended as a tool for learning and practicing English vocabulary
+* For development it's recommended to run backend locally (faster)
+* Docker is used for full application run

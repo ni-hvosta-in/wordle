@@ -4,11 +4,10 @@ import { Row } from '../ui/row/Row'
 import type { LetterStatus } from '../model/LetterStatus';
 import toast from 'react-hot-toast';
 import type { GameStatus } from '../model/GameStatus';
-import { api } from '../../../app/Api';
 import { useNavigate } from 'react-router-dom';
 import type { Level } from '../model/Level';
 import { Button, Dropdown, type MenuProps } from 'antd';
-import axios, { Axios, AxiosError } from 'axios';
+import axios from 'axios';
 import type { GameType } from '../model/GameType';
 import { checkWord } from '../api/checkWord';
 import { getAttempts } from '../api/getAttempts';
