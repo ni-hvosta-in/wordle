@@ -13,7 +13,7 @@ import { checkWord } from '../api/checkWord';
 import { getAttempts } from '../api/getAttempts';
 import type { Attempt } from '../model/Attempt';
 import { getWord } from '../api/getWord';
-
+import { updateKeyStatuses } from '../util/updateKeyStatuses';
 export function GamePage(){
 
     const [gameType, setGameType] = useState<GameType>("daily");
@@ -47,7 +47,10 @@ export function GamePage(){
         return ({
             key: level,
             label: level,
-            onClick: () => setLevel(level as Level)
+            onClick: () => {
+                setLevel(level as Level)
+                sessionStorage.setItem("level", level);
+            }
         });
     });
 
@@ -63,18 +66,25 @@ export function GamePage(){
 
     useEffect(() => {
         
+        setLevel((sessionStorage.getItem("level") as Level) || "B1");
         let type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
         setGameType(type);
         const loadAttempts = async () => {
             if (type == "personal") {
                 try {
 
-                    console.log("nem");
                     const userAttempts: Attempt[] = await getAttempts(level, localStorage.getItem("token") || "");
+                    
+                    if (userAttempts === null){
+                        return;
+                    }
 
                     const newAttempts = userAttempts.map(a => a.word);
                     const newStatuses = userAttempts.map(a => a.statuses);
 
+                    newStatuses.forEach((status, i) => {
+                        setKeysStatuses((prev) => updateKeyStatuses(status, newAttempts[i], prev));
+                    });
                     const rows = Math.min(newAttempts.length, 6);
                     setCurrRow(rows);
 
@@ -96,6 +106,7 @@ export function GamePage(){
                             return;
                         }
                     }
+                    
 
                     toast.error("An error occurred. Please try again.");
                 }
@@ -103,7 +114,7 @@ export function GamePage(){
         };
 
         loadAttempts();
-    }, []);
+    }, [level]);
 
     const navigate = useNavigate();
 
@@ -168,21 +179,7 @@ export function GamePage(){
                 });
 
 
-                setKeysStatuses((prev) => {
-                    const newKeysStatuses = new Map(prev);
-
-                    result.forEach((stat,i) => {
-                        const letter = currAttempt.charAt(i);
-                        const oldStat = newKeysStatuses.get(letter) ?? "UNUSED";
-
-                        if (oldStat === "UNUSED" || 
-                           (oldStat === "INCLUDES" && stat === "CORRECT")) {
-                            newKeysStatuses.set(letter, stat);
-                        }
-                    });
-
-                    return newKeysStatuses;
-                });
+                setKeysStatuses((prev) => updateKeyStatuses(result, currAttempt, prev));
 
                 if (result.every((status) => status === "CORRECT")) {
                     toast.success("You win!");
