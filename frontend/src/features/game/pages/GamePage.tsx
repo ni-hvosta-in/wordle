@@ -208,6 +208,7 @@ export function GamePage(){
         setKeysStatuses(defaultKeysStatues);
         setGameState("playing");
         setCurrAttempt("");
+        containerRef.current?.focus();
     }
 
     return (
@@ -244,8 +245,12 @@ export function GamePage(){
                 keysStatuses={keysStatuses}
             />
 
-            {(gameState === "won" || gameState === "lost") && (
+            {gameType === "daily" && (gameState === "won" || gameState === "lost") && (
                 <button onClick={() => navigate("/")}>Go to Start</button>
+            )}
+
+            {gameType === "personal" && (gameState === "won" || gameState === "lost") &&(
+                <button onClick={() => newGame()}>Next level</button>
             )}
         </div>
     )
