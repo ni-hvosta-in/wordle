@@ -2,6 +2,7 @@ package nihvostain.wordle_backend.game.services;
 
 import jakarta.annotation.PostConstruct;
 import nihvostain.wordle_backend.game.Level;
+import nihvostain.wordle_backend.game.UserIndexOutOfBoundsException;
 import nihvostain.wordle_backend.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -67,6 +68,9 @@ public class WordService {
     }
 
     public String getPersonalWord(Level level, int index){
+        if (wordsToGenerate.get(level).size() <= index){
+            throw new UserIndexOutOfBoundsException("%s ran out of words".formatted(level.toString()));
+        }
         return wordsToGenerate.get(level).get(index);
     }
 
