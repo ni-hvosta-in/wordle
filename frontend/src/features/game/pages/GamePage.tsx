@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import type { GameStatus } from '../model/GameStatus';
 import { useNavigate } from 'react-router-dom';
 import type { Level } from '../model/Level';
-import { Button, Dropdown, type MenuProps } from 'antd';
+import { type MenuProps } from 'antd';
 import axios from 'axios';
 import type { GameType } from '../model/GameType';
 import { checkWord } from '../api/checkWord';
@@ -14,6 +14,12 @@ import { getAttempts } from '../api/getAttempts';
 import type { Attempt } from '../model/Attempt';
 import { getWord } from '../api/getWord';
 import { updateKeyStatuses } from '../util/updateKeyStatuses';
+import { Profile } from '../ui/profile/Profile';
+import type { ProfileInfo } from '../model/ProfileInfo';
+import { getProfileInfo } from '../api/getProfileInfo';
+import type { Clue as ClueModel } from '../model/Clue';
+import { getClue } from '../api/getClue';
+import { Clue } from '../ui/clue/Clue';
 export function GamePage(){
 
     const [gameType, setGameType] = useState<GameType>("daily");
@@ -21,8 +27,6 @@ export function GamePage(){
     const [attempts, setAttempts] = useState<string[]>(["", "", "", "", "", ""]);
     const [currAttempt, setCurrAttempt] = useState("");
     const [gameState, setGameState] = useState<GameStatus>("playing");
-
-
     const [statuses, setStatuses] = useState<LetterStatus[][]>(
         Array(6).fill(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"])
     );
@@ -54,6 +58,10 @@ export function GamePage(){
         });
     });
 
+    const [coins, setCoins] = useState(0);
+    const [game_level, setGame_level] = useState(1);
+    const [clues, setClues] = useState(" ".repeat(5));
+
     useEffect(() => {
         setGameState("playing");
         newGame();
@@ -63,62 +71,79 @@ export function GamePage(){
         containerRef.current?.focus();
     }, []);
 
-
     useEffect(() => {
         
         setLevel((sessionStorage.getItem("level") as Level) || "B1");
         let type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
         setGameType(type);
         const loadAttempts = async () => {
-            if (type == "personal") {
-                try {
+            if (type == "daily"){
+                return;
+            }
 
-                    const userAttempts: Attempt[] = await getAttempts(level, localStorage.getItem("token") || "");
-                    
-                    if (userAttempts === null){
+            try {
+
+                const userAttempts: Attempt[] = await getAttempts(level, localStorage.getItem("token") || "");
+                
+                if (userAttempts === null){
+                    return;
+                }
+
+                const newAttempts = userAttempts.map(a => a.word);
+                const newStatuses = userAttempts.map(a => a.statuses);
+
+                newStatuses.forEach((status, i) => {
+                    setKeysStatuses((prev) => updateKeyStatuses(status, newAttempts[i], prev));
+                });
+                const rows = Math.min(newAttempts.length, 6);
+                setCurrRow(rows);
+
+                for (let i = 0; i < 6 - rows; i++) {
+                    newAttempts.push("");
+                    newStatuses.push(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"]);
+                }
+
+                setAttempts(newAttempts);
+                setStatuses(newStatuses);
+
+            } catch (error) {
+
+                if (axios.isAxiosError(error)) {
+                    if (error.response?.status === 401) {
+                        toast.error("Session expired. Please log in again.");
+                        localStorage.removeItem("token");
+                        navigate("/login");
                         return;
                     }
-
-                    const newAttempts = userAttempts.map(a => a.word);
-                    const newStatuses = userAttempts.map(a => a.statuses);
-
-                    newStatuses.forEach((status, i) => {
-                        setKeysStatuses((prev) => updateKeyStatuses(status, newAttempts[i], prev));
-                    });
-                    const rows = Math.min(newAttempts.length, 6);
-                    setCurrRow(rows);
-
-                    for (let i = 0; i < 6 - rows; i++) {
-                        newAttempts.push("");
-                        newStatuses.push(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"]);
-                    }
-
-                    setAttempts(newAttempts);
-                    setStatuses(newStatuses);
-
-                } catch (error) {
-
-                    if (axios.isAxiosError(error)) {
-                        if (error.response?.status === 401) {
-                            toast.error("Session expired. Please log in again.");
-                            localStorage.removeItem("token");
-                            navigate("/login");
-                            return;
-                        }
-                    }
-                    
-
-                    toast.error("An error occurred. Please try again.");
                 }
+                
+
+                toast.error("An error occurred. Please try again.");
             }
+        
         };
 
         loadAttempts();
+        getProfile();
+
     }, [level]);
+    
+    const getProfile = async () => {
+
+        let type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
+        if (type == "daily"){
+            return;
+        }
+
+        const profileInfo: ProfileInfo = await getProfileInfo(level);
+        setCoins(profileInfo.coins);
+        setGame_level(profileInfo.gameLevel);
+        
+    };
 
     const navigate = useNavigate();
-
     
+
     async function handleClick(letter: string){
 
         if (gameState != "playing"){
@@ -136,7 +161,7 @@ export function GamePage(){
                     toast.error("must be 5 letters");
                     break;
                 }
-
+                
                 const attemptIndex = currRow; 
 
                 setAttempts((prev) => {
@@ -208,7 +233,34 @@ export function GamePage(){
         setKeysStatuses(defaultKeysStatues);
         setGameState("playing");
         setCurrAttempt("");
+        setClues(" ".repeat(5));
         containerRef.current?.focus();
+    }
+
+
+    async function help(){
+        if (gameState !== "playing") {
+            return;
+        }
+
+        try {
+            const clue: ClueModel = await getClue(level);
+            setClues((prev) => {
+                const newClues = clues.split("");
+                newClues[clue.index] = clue.letter;
+                return newClues.join("");            
+            })
+
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 401) {
+                toast.error("Session expired. Please log in again.");
+                localStorage.removeItem("token");
+                navigate("/login");
+                return;
+            }
+
+            toast.error("An error occurred. Please try again.");
+        }
     }
 
     return (
@@ -223,13 +275,9 @@ export function GamePage(){
                 else if (key === "ENTER") handleClick("ENTER");
                 else if (/^[A-Z]$/.test(key)) handleClick(key);
             }}
-
-            style={{display: "flex", flexDirection: "column", alignItems: "center", gap: "20px"}}
         >
-
-            <Dropdown menu={{items}} placement='top' arrow = {true}>
-                <Button>{level}</Button>
-            </Dropdown>
+            <Profile level={level} game_level={game_level} items={items} coins={coins} isPersonal = {gameType === "personal"} isPlaying = {gameState === "playing"} helpFunction={help}/>
+            {gameType === "personal" && <Clue value = {clues}/>}
             {Array.from({length: 6}).map((_, i) => (
                 <Row
                     key={i}

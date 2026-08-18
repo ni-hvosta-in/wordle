@@ -4,10 +4,10 @@ import nihvostain.wordle_backend.auth.dto.AuthRequest;
 import nihvostain.wordle_backend.auth.dto.AuthResponse;
 import nihvostain.wordle_backend.auth.exceptions.AuthException;
 import nihvostain.wordle_backend.common.services.JWTService;
-import nihvostain.wordle_backend.game.entity.UserGame;
-import nihvostain.wordle_backend.game.entity.UserGameRepository;
-import nihvostain.wordle_backend.user.User;
-import nihvostain.wordle_backend.user.UserRepository;
+import nihvostain.wordle_backend.game.personal.entity.UserGame;
+import nihvostain.wordle_backend.game.personal.entity.UserGameRepository;
+import nihvostain.wordle_backend.auth.user.User;
+import nihvostain.wordle_backend.auth.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
