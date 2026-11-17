@@ -2,11 +2,12 @@ package nihvostain.wordle_backend;
 
 import nihvostain.wordle_backend.game.common.services.WordChecker;
 import nihvostain.wordle_backend.game.common.util.LetterStatus;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
 import static org.junit.jupiter.api.Assertions.*;
-class WordServiceTest {
+class WordCheckerTest {
 
     private final WordChecker wordChecker = new WordChecker();
 
@@ -28,5 +29,10 @@ class WordServiceTest {
         String statuses = String.valueOf(chars);
 
         assertEquals(targetStatuses, statuses);
+    }
+
+    @Test
+    void shouldEqualsSizeStrings() {
+        assertThrows(IllegalArgumentException.class,() -> wordChecker.checkWord("abc", "abcd"));
     }
 }

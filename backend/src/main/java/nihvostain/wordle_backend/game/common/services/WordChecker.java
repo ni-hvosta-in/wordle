@@ -11,6 +11,10 @@ import java.util.Map;
 public class WordChecker {
     public LetterStatus [] checkWord(String attempt, String target) {
 
+        if (attempt.length() != target.length()) {
+            throw new IllegalArgumentException("attempt and target must have the same length");
+        }
+
         char [] attemptChars = attempt.toCharArray();
         char [] targetChars = target.toCharArray();
         int n = targetChars.length;
@@ -29,7 +33,7 @@ public class WordChecker {
                 continue;
             }
 
-            if (letterCount.get(attemptChar) > 0 && attemptChar == targetChars[i]) {
+            if (attemptChar == targetChars[i]) {
                 statuses[i] = LetterStatus.CORRECT;
                 letterCount.put(attemptChar, letterCount.get(attemptChar) - 1);
             }
