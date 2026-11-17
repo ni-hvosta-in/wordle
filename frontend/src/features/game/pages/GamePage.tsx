@@ -20,6 +20,7 @@ import { getProfileInfo } from '../api/getProfileInfo';
 import type { Clue as ClueModel } from '../model/Clue';
 import { getClue } from '../api/getClue';
 import { Clue } from '../ui/clue/Clue';
+import { getClues } from '../api/getClues';
 export function GamePage(){
 
     const [gameType, setGameType] = useState<GameType>("daily");
@@ -123,7 +124,26 @@ export function GamePage(){
         
         };
 
+        const loadClues = async () => {
+            if (type == "daily") {
+                return;
+            }
+
+            const clues2: ClueModel[] = await getClues(level);
+
+            console.log("clues2:", clues2);
+            console.log("isArray:", Array.isArray(clues2));
+
+            const newClues = clues.split("");
+
+            clues2.forEach((clue) => {
+                newClues[clue.index] = clue.letter;
+            });
+
+            setClues(newClues.join(""));
+        };
         loadAttempts();
+        loadClues();
         getProfile();
 
     }, [level]);

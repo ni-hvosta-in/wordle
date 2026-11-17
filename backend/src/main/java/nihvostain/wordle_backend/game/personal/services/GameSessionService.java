@@ -41,6 +41,10 @@ public class GameSessionService {
             clues.get(id).put(level, new ArrayList<>());
         }
 
+        if (!clues.get(id).containsKey(level)) {
+            clues.get(id).put(level, new ArrayList<>());
+        }
+
         clues.get(id).get(level).add(clue);
 
     }

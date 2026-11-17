@@ -16,6 +16,7 @@ public class GameService {
 
     WordService wordService;
     Map<GameMode, GameModeStrategy> strategies = new HashMap<>();
+
     public GameService(List<GameModeStrategy> strategies, WordService wordService) {
         this.wordService = wordService;
 
