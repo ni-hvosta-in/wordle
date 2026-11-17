@@ -1,6 +1,5 @@
-package nihvostain.wordle_backend;
+package nihvostain.wordle_backend.game.common.services;
 
-import nihvostain.wordle_backend.game.common.services.WordChecker;
 import nihvostain.wordle_backend.game.common.util.LetterStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,7 +31,7 @@ class WordCheckerTest {
     }
 
     @Test
-    void shouldEqualsSizeStrings() {
+    void shouldThrowException_whenWordLengthsDiffer() {
         assertThrows(IllegalArgumentException.class,() -> wordChecker.checkWord("abc", "abcd"));
     }
 }
