@@ -11,31 +11,44 @@ import java.util.Map;
 public class WordChecker {
     public LetterStatus [] checkWord(String attempt, String target) {
 
-        char [] targetChars = target.toCharArray();
         char [] attemptChars = attempt.toCharArray();
+        char [] targetChars = target.toCharArray();
+        int n = targetChars.length;
         Map<Character, Integer> letterCount = new HashMap<>();
 
         for (char ch : targetChars) {
             letterCount.put(ch, letterCount.getOrDefault(ch, 0) + 1);
         }
 
-        System.out.println(letterCount);
-        LetterStatus [] statuses = new LetterStatus [attempt.length()];
-        Arrays.fill(statuses, LetterStatus.WRONG);
+        LetterStatus [] statuses = new LetterStatus[attempt.length()];
 
-        for (int i = 0; i < attemptChars.length; i++) {
-
-            if (letterCount.containsKey(attemptChars[i]) && letterCount.get(attemptChars[i]) > 0) {
-                if (targetChars[i] == attemptChars[i]) {
-                    statuses[i] = LetterStatus.CORRECT;
-                } else {
-                    statuses[i] = LetterStatus.INCLUDES;
-                }
-                letterCount.put(attemptChars[i], letterCount.get(attemptChars[i]) - 1);
+        for (int i = 0; i < n; i++) {
+            char attemptChar = attemptChars[i];
+            if (!letterCount.containsKey(attemptChar)) {
+                statuses[i] = LetterStatus.WRONG;
+                continue;
             }
-            if (!letterCount.containsKey(attemptChars[i])) {
+
+            if (letterCount.get(attemptChar) > 0 && attemptChar == targetChars[i]) {
+                statuses[i] = LetterStatus.CORRECT;
+                letterCount.put(attemptChar, letterCount.get(attemptChar) - 1);
+            }
+        }
+
+        for (int i = 0; i < attempt.length(); i++) {
+
+            if (statuses[i] != null) {
+                continue;
+            }
+
+            char attemptChar = attemptChars[i];
+            if (letterCount.containsKey(attemptChar) && letterCount.get(attemptChar) != 0) {
+                statuses[i] = LetterStatus.INCLUDES;
+                letterCount.put(attemptChar, letterCount.get(attemptChar) - 1);
+            } else {
                 statuses[i] = LetterStatus.WRONG;
             }
+
         }
 
         return statuses;
