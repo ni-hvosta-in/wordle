@@ -11,7 +11,7 @@ import nihvostain.wordle_backend.auth.user.User;
 public class UserGame {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne

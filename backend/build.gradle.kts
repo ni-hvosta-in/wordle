@@ -39,6 +39,9 @@ dependencies {
 	implementation("com.auth0:java-jwt:4.5.1")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("io.micrometer:micrometer-registry-prometheus")
+	implementation("org.flywaydb:flyway-database-postgresql")
+	implementation("org.flywaydb:flyway-database-postgresql")
+	implementation("org.springframework.boot:spring-boot-starter-flyway:4.2.0-M2")
 }
 
 tasks.withType<Test> {

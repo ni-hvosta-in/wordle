@@ -1,0 +1,16 @@
+CREATE TABLE users (
+    id bigint generated always as identity primary key,
+    login varchar(255) NOT NULL,
+    password varchar(255) NOT NULL
+);
+
+CREATE TABLE user_game (
+    id bigint generated always as identity primary key,
+    a1_index integer NOT NULL,
+    a2_index integer NOT NULL,
+    b1_index integer NOT NULL,
+    b2_index integer NOT NULL,
+    coins integer DEFAULT 0 NOT NULL,
+    user_id bigint unique not null REFERENCES users(id)
+);
+
