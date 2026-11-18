@@ -40,8 +40,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("io.micrometer:micrometer-registry-prometheus")
 	implementation("org.flywaydb:flyway-database-postgresql")
-	implementation("org.flywaydb:flyway-database-postgresql")
-	implementation("org.springframework.boot:spring-boot-starter-flyway")}
+	implementation("org.springframework.boot:spring-boot-starter-flyway")
+}
 
 tasks.withType<Test> {
 	useJUnitPlatform()
