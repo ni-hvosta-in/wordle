@@ -41,8 +41,7 @@ dependencies {
 	implementation("io.micrometer:micrometer-registry-prometheus")
 	implementation("org.flywaydb:flyway-database-postgresql")
 	implementation("org.flywaydb:flyway-database-postgresql")
-	implementation("org.springframework.boot:spring-boot-starter-flyway:4.2.0-M2")
-}
+	implementation("org.springframework.boot:spring-boot-starter-flyway")}
 
 tasks.withType<Test> {
 	useJUnitPlatform()
