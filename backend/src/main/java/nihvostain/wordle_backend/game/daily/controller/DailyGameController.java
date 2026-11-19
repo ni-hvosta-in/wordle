@@ -5,7 +5,7 @@ import nihvostain.wordle_backend.game.common.util.GameMode;
 import nihvostain.wordle_backend.game.common.util.Level;
 import nihvostain.wordle_backend.game.common.dto.GameRequest;
 import nihvostain.wordle_backend.game.common.dto.GameResponse;
-import nihvostain.wordle_backend.game.common.services.GameService;
+import nihvostain.wordle_backend.game.common.services.GameStrategyService;
 import nihvostain.wordle_backend.game.common.services.WordService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.*;
 public class DailyGameController {
 
     private final WordService wordService;
-    private final GameService gameService;
+    private final GameStrategyService gameStrategyService;
 
-    public DailyGameController(WordService wordService, GameService gameService) {
+    public DailyGameController(WordService wordService, GameStrategyService gameStrategyService) {
         this.wordService = wordService;
-        this.gameService = gameService;
+        this.gameStrategyService = gameStrategyService;
     }
 
     @PostMapping("/check")
     public ResponseEntity<GameResponse> checkDailyWord(@Valid @RequestBody GameRequest gameRequest){
-        return ResponseEntity.ok(new GameResponse(gameService.check(GameMode.DAILY, null,gameRequest.attempt(), gameRequest.level())));
+        return ResponseEntity.ok(new GameResponse(gameStrategyService.check(GameMode.DAILY, null,gameRequest.attempt(), gameRequest.level())));
     }
 
     @GetMapping("/word")

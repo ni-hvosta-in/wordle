@@ -1,6 +1,5 @@
 package nihvostain.wordle_backend.game.personal.services;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import nihvostain.wordle_backend.game.common.util.LetterStatus;
 import nihvostain.wordle_backend.game.common.util.Level;
 import nihvostain.wordle_backend.game.common.services.WordService;
@@ -17,16 +16,16 @@ public class PersonalService {
 
     private final GameSessionService gameSessionService;
     private final WordService wordService;
-    private final UserProgressService userProgressService;
-    public PersonalService(GameSessionService gameSessionService, WordService wordService, UserProgressService userProgressService) {
+    private final UserProfileService userProfileService;
+    public PersonalService(GameSessionService gameSessionService, WordService wordService, UserProfileService userProfileService) {
         this.gameSessionService = gameSessionService;
         this.wordService = wordService;
-        this.userProgressService = userProgressService;
+        this.userProfileService = userProfileService;
     }
 
     public Clue getClueByLevel(long userId, Level level) {
 
-        int index = userProgressService.getUserIndex(userId, level);
+        int index = 0; // заглушка чтобы потом переписать
         String target = wordService.getPersonalWord(level, index);
         List<Attempt> attempts = gameSessionService.getAttemptsByLevel(userId, level);
         List<Clue> clues = gameSessionService.getCluesByLevel(userId, level);

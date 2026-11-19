@@ -4,24 +4,24 @@ import nihvostain.wordle_backend.auth.dto.AuthRequest;
 import nihvostain.wordle_backend.auth.dto.AuthResponse;
 import nihvostain.wordle_backend.auth.exceptions.AuthException;
 import nihvostain.wordle_backend.common.services.JWTService;
-import nihvostain.wordle_backend.game.personal.entity.UserGame;
-import nihvostain.wordle_backend.game.personal.entity.UserGameRepository;
 import nihvostain.wordle_backend.auth.user.User;
 import nihvostain.wordle_backend.auth.user.UserRepository;
+import nihvostain.wordle_backend.game.personal.entity.UserProfile;
+import nihvostain.wordle_backend.game.personal.repository.UserProfileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
 
-    UserRepository userRepository;
-    JWTService jwtService;
-    UserGameRepository userGameRepository;
+    private final UserRepository userRepository;
+    private final JWTService jwtService;
+    private final UserProfileRepository userProfileRepository;
 
-    public AuthService(UserRepository userRepository, JWTService jwtService, UserGameRepository userGameRepository) {
+    public AuthService(UserRepository userRepository, JWTService jwtService, UserProfileRepository userProfileRepository) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
-        this.userGameRepository = userGameRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     public AuthResponse login(AuthRequest authRequest) throws AuthException {
@@ -34,8 +34,8 @@ public class AuthService {
             throw new AuthException("Invalid password");
         }
 
-        if (!userGameRepository.existsByUser(user)){
-            userGameRepository.save(new UserGame(user));
+        if (!userProfileRepository.existsByUser(user)){
+            userProfileRepository.save(new UserProfile(user, 0));
         }
 
         return new AuthResponse("auth", jwtService.generateToken(user));
@@ -51,7 +51,7 @@ public class AuthService {
 
         User user = new User(authRequest.login(), authRequest.password());
         userRepository.save(user);
-        userGameRepository.save(new UserGame(user));
+        userProfileRepository.save(new UserProfile(user, 0));
 
         return new AuthResponse("auth", jwtService.generateToken(user));
 

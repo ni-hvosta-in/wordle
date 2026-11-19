@@ -15,7 +15,7 @@ import java.util.*;
 @Service
 public class WordService {
 
-    private final HashMap<Level, ArrayList<String>> wordsToGenerate = new HashMap<>();
+    private final HashMap<Level, List<String>> wordsToGenerate = new HashMap<>();
     private final Set<String> dictionary = new HashSet<>();
 
     @Value("${game.seed}")
@@ -71,6 +71,17 @@ public class WordService {
             throw new UserIndexOutOfBoundsException("%s ran out of words".formatted(level.toString()));
         }
         return wordsToGenerate.get(level).get(index);
+    }
+
+    public String getPersonalWord(Level level, Set<String> words){
+
+        for (String word: wordsToGenerate.get(level)){
+            if (!words.contains(word)){
+                return word;
+            }
+        }
+
+        throw new UserIndexOutOfBoundsException("%s ran out of words".formatted(level.toString()));
     }
 
     public boolean dictionaryContains(String word) {

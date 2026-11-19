@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class GameService {
+public class GameStrategyService {
 
     WordService wordService;
     Map<GameMode, GameModeStrategy> strategies = new HashMap<>();
 
-    public GameService(List<GameModeStrategy> strategies, WordService wordService) {
+    public GameStrategyService(List<GameModeStrategy> strategies, WordService wordService) {
         this.wordService = wordService;
 
         for (GameModeStrategy strategy : strategies) {

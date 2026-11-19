@@ -6,13 +6,14 @@ import nihvostain.wordle_backend.game.common.util.GameMode;
 import nihvostain.wordle_backend.game.common.util.Level;
 import nihvostain.wordle_backend.game.common.dto.GameRequest;
 import nihvostain.wordle_backend.game.common.dto.GameResponse;
-import nihvostain.wordle_backend.game.common.services.GameService;
+import nihvostain.wordle_backend.game.common.services.GameStrategyService;
 import nihvostain.wordle_backend.game.personal.dto.Clue;
 import nihvostain.wordle_backend.game.personal.dto.ProfileInfo;
 import nihvostain.wordle_backend.game.personal.dto.UserAttempts;
+import nihvostain.wordle_backend.game.personal.services.GameService;
 import nihvostain.wordle_backend.game.personal.services.GameSessionService;
 import nihvostain.wordle_backend.game.personal.services.PersonalService;
-import nihvostain.wordle_backend.game.personal.services.UserProgressService;
+import nihvostain.wordle_backend.game.personal.services.UserProfileService;
 import nihvostain.wordle_backend.game.common.services.WordService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -27,52 +28,60 @@ public class PersonalGameController {
     @Value("${game.attempt.count}")
     private int MAX_ATTEMPTS;
 
-    private final WordService wordService;
+    private final GameStrategyService gameStrategyService;
     private final GameService gameService;
-    private final GameSessionService gameSessionService;
-    private final UserProgressService userProgressService;
+    private final UserProfileService userProfileService;
     private final PersonalService personalService;
+    private final GameSessionService gameSessionService;
+
     PersonalGameController(WordService wordService,
+                           GameStrategyService gameStrategyService,
+                           UserProfileService userProfileService,
                            GameService gameService,
-                           GameSessionService gameSessionService,
-                           UserProgressService userProgressService,
-                           PersonalService personalService) {
-        this.wordService = wordService;
+                           PersonalService personalService,
+                           GameSessionService gameSessionService) {
+
+        this.gameStrategyService = gameStrategyService;
         this.gameService = gameService;
-        this.gameSessionService = gameSessionService;
-        this.userProgressService = userProgressService;
+        this.userProfileService = userProfileService;
         this.personalService = personalService;
+        this.gameSessionService = gameSessionService;
     }
 
     @PostMapping("/check")
     public ResponseEntity<GameResponse> checkPersonalWord(@Valid @RequestBody GameRequest gameRequest,
                                                           HttpServletRequest request){
         Long userID = getUserID(request);
-        return ResponseEntity.ok(new GameResponse(gameService.check(GameMode.PERSONAL, userID, gameRequest.attempt(), gameRequest.level())));
+        return ResponseEntity.ok(
+                new GameResponse(
+                        gameStrategyService.check(GameMode.PERSONAL, userID, gameRequest.attempt(), gameRequest.level())
+                )
+        );
     }
 
     @GetMapping("/attempts")
     public ResponseEntity<UserAttempts> getUserAttempts(Level level, HttpServletRequest request){
         Long userID = getUserID(request);
-        return ResponseEntity.ok(new UserAttempts(gameSessionService.getAttemptsByLevel(userID, level)));
+        return ResponseEntity.ok(new UserAttempts(gameService.userLevelAttempts(userID, level)));
     }
 
     @GetMapping("/word")
     public ResponseEntity<String> getWord(Level level, HttpServletRequest request){
         Long userID = getUserID(request);
-
-        int index = userProgressService.getUserIndex(userID, level);
-        String word = wordService.getPersonalWord(level, index - 1);
-
-        return ResponseEntity.ok(word);
+        return ResponseEntity.ok(gameService.currTargetWorldByUserAndLevel(userID, level));
     }
 
     @GetMapping("/profile")
     public ResponseEntity<ProfileInfo> getProfileInfo(Level level, HttpServletRequest request){
 
         Long userID = getUserID(request);
-        return ResponseEntity.ok(userProgressService.getUserProfileInfo(userID, level));
+        return ResponseEntity.ok(userProfileService.getUserProfileInfo(userID, level));
     }
+
+    private Long getUserID(HttpServletRequest request){
+        return (Long) request.getAttribute("userID");
+    }
+
 
     @GetMapping("/clue")
     public ResponseEntity<Clue> getClue(Level level, HttpServletRequest request){
@@ -87,8 +96,7 @@ public class PersonalGameController {
 
         return ResponseEntity.ok(gameSessionService.getCluesByLevel(userID, level));
     }
-    private Long getUserID(HttpServletRequest request){
-        return (Long) request.getAttribute("userID");
-    }
+
+
 
 }
