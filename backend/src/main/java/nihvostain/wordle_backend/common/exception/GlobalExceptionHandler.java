@@ -2,8 +2,11 @@ package nihvostain.wordle_backend.common.exception;
 
 import nihvostain.wordle_backend.auth.exceptions.AuthException;
 import nihvostain.wordle_backend.game.common.exception.NonExistentWordException;
+import nihvostain.wordle_backend.game.personal.exception.FinishedGameNotFoundException;
+import nihvostain.wordle_backend.game.personal.exception.GameInProgressException;
 import nihvostain.wordle_backend.game.personal.exception.NoClueException;
 import nihvostain.wordle_backend.game.personal.exception.UserIndexOutOfBoundsException;
+import nihvostain.wordle_backend.game.personal.exception.UserProfileNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,5 +33,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoClueException.class)
     public ResponseEntity<ErrorResponse> handleNoClueException(NoClueException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler({FinishedGameNotFoundException.class, UserProfileNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(GameInProgressException.class)
+    public ResponseEntity<ErrorResponse> handleGameInProgressException(GameInProgressException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex.getMessage()));
     }
 }

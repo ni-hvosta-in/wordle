@@ -7,6 +7,8 @@ import nihvostain.wordle_backend.game.common.util.LetterStatus;
 import nihvostain.wordle_backend.game.common.util.Level;
 import nihvostain.wordle_backend.game.personal.entity.Game;
 import nihvostain.wordle_backend.game.personal.entity.Guess;
+import nihvostain.wordle_backend.game.personal.exception.FinishedGameNotFoundException;
+import nihvostain.wordle_backend.game.personal.exception.GameInProgressException;
 import nihvostain.wordle_backend.game.personal.model.Attempt;
 import nihvostain.wordle_backend.game.personal.model.GameStatus;
 import nihvostain.wordle_backend.game.personal.model.Mode;
@@ -107,7 +109,7 @@ public class GameService {
         if (!userActive.isEmpty()) {
 
             if (userActive.size() != 1) {
-                throw new RuntimeException("Found more than one active game");
+                throw new IllegalStateException("Found more than one active game");
             }
 
             return userActive.get(0);
@@ -122,12 +124,14 @@ public class GameService {
         Game active = userActiveGameByLevel(id, level);
 
         if (active != null) {
-            throw new RuntimeException("Current game is prohibited");
+            throw new GameInProgressException("Word is not available while the game is in progress");
         }
 
         Optional<Game> lastGame = gameRepository.findLastFinishedGame(id, level, Mode.PERSONAL);
 
-        return lastGame.orElseThrow(RuntimeException::new).getTargetWord();
+        return lastGame.orElseThrow(
+                () -> new FinishedGameNotFoundException("No finished games on level %s".formatted(level))
+        ).getTargetWord();
 
     }
     public int getLevelNumberByUserIdAndLevel(Long id, Level level){

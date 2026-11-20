@@ -1,9 +1,9 @@
 package nihvostain.wordle_backend.game.personal.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import nihvostain.wordle_backend.game.common.util.Level;
 import nihvostain.wordle_backend.game.personal.dto.ProfileInfo;
 import nihvostain.wordle_backend.game.personal.entity.UserProfile;
+import nihvostain.wordle_backend.game.personal.exception.UserProfileNotFoundException;
 import nihvostain.wordle_backend.game.personal.repository.GameRepository;
 import nihvostain.wordle_backend.game.personal.repository.UserProfileRepository;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class UserProfileService {
 
     private UserProfile getUserProfile(Long id) {
         return userProfileRepository.findByUserId(id).orElseThrow(
-                () -> new EntityNotFoundException("User game not found")
+                () -> new UserProfileNotFoundException("User profile not found")
         );
     }
 
