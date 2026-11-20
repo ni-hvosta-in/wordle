@@ -1,5 +1,7 @@
 package nihvostain.wordle_backend.game.personal.services;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import nihvostain.wordle_backend.auth.user.UserRepository;
 import nihvostain.wordle_backend.game.common.services.GameStrategyService;
 import nihvostain.wordle_backend.game.common.services.WordService;
@@ -15,6 +17,7 @@ import nihvostain.wordle_backend.game.personal.model.Mode;
 import nihvostain.wordle_backend.game.personal.repository.GameRepository;
 import nihvostain.wordle_backend.game.personal.repository.GuessRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -31,20 +34,27 @@ public class GameService {
     private final WordService wordService;
     private final UserRepository userRepository;
     private final GuessRepository guessRepository;
+    private final EntityManager entityManager;
 
-    public GameService(GameRepository gameRepository, WordService wordService, UserRepository userRepository, GuessRepository guessRepository) {
+    public GameService(GameRepository gameRepository,
+                       WordService wordService,
+                       UserRepository userRepository,
+                       GuessRepository guessRepository,
+                       EntityManager entityManager) {
         this.gameRepository = gameRepository;
         this.wordService = wordService;
         this.userRepository = userRepository;
         this.guessRepository = guessRepository;
+        this.entityManager = entityManager;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public Game currentUserTargetWordByLevel(Long id, Level level) {
 
         Game active = userActiveGameByLevel(id, level);
 
         if (active != null) {
+            entityManager.lock(active, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             return active;
         }
 
@@ -65,7 +75,7 @@ public class GameService {
 
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public int addGuess(Game game, String attempt, LetterStatus [] statuses){
 
         List<Guess> prev = guessRepository.findByGame(game);
@@ -75,7 +85,7 @@ public class GameService {
 
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public void closeGame(Game game, GameStatus status){
         game.setStatus(status);
         game.setFinishedAt(LocalDateTime.now());

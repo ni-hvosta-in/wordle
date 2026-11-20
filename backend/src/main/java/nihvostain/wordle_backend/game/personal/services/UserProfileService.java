@@ -7,6 +7,7 @@ import nihvostain.wordle_backend.game.personal.exception.UserProfileNotFoundExce
 import nihvostain.wordle_backend.game.personal.repository.GameRepository;
 import nihvostain.wordle_backend.game.personal.repository.UserProfileRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -28,7 +29,7 @@ public class UserProfileService {
         );
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public void correctWord(Long userId){
         UserProfile profile = getUserProfile(userId);
         profile.setCoins(profile.getCoins() + BASE_REWARD);

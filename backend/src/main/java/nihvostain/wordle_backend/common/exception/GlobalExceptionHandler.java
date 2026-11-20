@@ -7,11 +7,15 @@ import nihvostain.wordle_backend.game.personal.exception.GameInProgressException
 import nihvostain.wordle_backend.game.personal.exception.NoClueException;
 import nihvostain.wordle_backend.game.personal.exception.UserIndexOutOfBoundsException;
 import nihvostain.wordle_backend.game.personal.exception.UserProfileNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -43,5 +47,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GameInProgressException.class)
     public ResponseEntity<ErrorResponse> handleGameInProgressException(GameInProgressException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler({OptimisticLockingFailureException.class, DataIntegrityViolationException.class})
+    public ResponseEntity<ErrorResponse> handleConcurrentModification(RuntimeException ex) {
+        log.warn("Concurrent modification rejected: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("Request conflicts with another one in progress, please retry"));
     }
 }

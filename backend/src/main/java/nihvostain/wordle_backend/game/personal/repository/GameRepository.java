@@ -1,13 +1,10 @@
 package nihvostain.wordle_backend.game.personal.repository;
 
-import nihvostain.wordle_backend.auth.user.User;
 import nihvostain.wordle_backend.game.common.util.Level;
 import nihvostain.wordle_backend.game.personal.entity.Game;
 import nihvostain.wordle_backend.game.personal.model.GameStatus;
 import nihvostain.wordle_backend.game.personal.model.Mode;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
