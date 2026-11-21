@@ -145,7 +145,7 @@ public class GameService {
 
     }
     public int getLevelNumberByUserIdAndLevel(Long id, Level level){
-        return gameRepository.countGameByUserIdAndLevel(id, level);
+        return gameRepository.countFinishedGames(id, level, Mode.PERSONAL);
     }
 
 }

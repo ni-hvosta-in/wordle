@@ -16,9 +16,14 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     List<Game> findByUserIdAndLevelAndMode(Long userId, Level level, Mode mode);
     List<Game> findByUserIdAndLevelAndModeAndStatus(Long userId, Level level, Mode mode, GameStatus status);
 
-    int countGameByUserIdAndLevel(Long userId, Level level);
-
     Set<GameStatus> FINISHED_STATUSES = Set.of(GameStatus.WON, GameStatus.LOST);
+
+    int countByUserIdAndLevelAndModeAndStatusIn(
+            Long userId, Level level, Mode mode, Collection<GameStatus> statuses);
+
+    default int countFinishedGames(Long userId, Level level, Mode mode) {
+        return countByUserIdAndLevelAndModeAndStatusIn(userId, level, mode, FINISHED_STATUSES);
+    }
 
     Optional<Game> findFirstByUserIdAndLevelAndModeAndStatusInOrderByFinishedAtDesc(
             Long userId, Level level, Mode mode, Collection<GameStatus> statuses);
