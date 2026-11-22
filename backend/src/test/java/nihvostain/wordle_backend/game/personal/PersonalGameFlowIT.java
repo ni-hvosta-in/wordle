@@ -28,12 +28,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PersonalGameFlowIT {
 
     private static final String PASSWORD = "password";
+    private static final String VALID_CHECK_BODY = """
+            {"attempt": "APPLE", "level": "A1"}
+            """;
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void checkTest() throws Exception {
+    void shouldReturnFiveStatuses_whenAuthorizedUserChecksWord() throws Exception {
         String login = "user-" + UUID.randomUUID();
         register(login);
         String token = login(login);
@@ -41,6 +44,23 @@ class PersonalGameFlowIT {
         LetterStatus[] statuses = check(token, "APPLE", Level.A1);
 
         assertEquals(5, statuses.length);
+    }
+
+    @Test
+    void shouldReturnUnauthorized_whenCheckWithoutAuthorizationHeader() throws Exception {
+        mockMvc.perform(post("/game/personal/check")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_CHECK_BODY))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldReturnUnauthorized_whenCheckWithInvalidToken() throws Exception {
+        mockMvc.perform(post("/game/personal/check")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer not-a-jwt")
+                        .content(VALID_CHECK_BODY))
+                .andExpect(status().isUnauthorized());
     }
 
     private LetterStatus[] check(String token, String attempt, Level level) throws Exception {
