@@ -4,7 +4,7 @@ import type { Level } from "../model/Level";
 
 export async function getAttempts(level : Level, token : string) : Promise<Attempt[]>{
 
-    let response = await api.get("/game/personal/attempts", 
+    const response = await api.get("/game/personal/attempts", 
         {headers: {"Authorization": `Bearer ${token}`},
         params: {level : level}});
 

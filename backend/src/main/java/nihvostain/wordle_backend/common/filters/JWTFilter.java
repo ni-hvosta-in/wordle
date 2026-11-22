@@ -58,7 +58,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getServletPath();
+        String path = request.getRequestURI();
         return !path.startsWith("/game/personal");
     }
 
