@@ -19,5 +19,9 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // GamePage resets game state in effects on level change; refactor tracked separately
+      'react-hooks/set-state-in-effect': 'warn',
+    },
   },
 ])

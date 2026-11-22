@@ -63,6 +63,32 @@ export function GamePage(){
     const [game_level, setGame_level] = useState(1);
     const [clues, setClues] = useState(" ".repeat(5));
 
+    const navigate = useNavigate();
+
+    const getProfile = async () => {
+
+        const type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
+        if (type == "daily"){
+            return;
+        }
+
+        const profileInfo: ProfileInfo = await getProfileInfo(level);
+        setCoins(profileInfo.coins);
+        setGame_level(profileInfo.gameLevel);
+
+    };
+
+    function newGame(){
+        setCurrRow(0);
+        setAttempts(["", "", "", "", "", ""]);
+        setStatuses(Array(6).fill(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"]));
+        setKeysStatuses(defaultKeysStatues);
+        setGameState("playing");
+        setCurrAttempt("");
+        setClues(" ".repeat(5));
+        containerRef.current?.focus();
+    }
+
     useEffect(() => {
         setGameState("playing");
         newGame();
@@ -75,7 +101,7 @@ export function GamePage(){
     useEffect(() => {
         
         setLevel((sessionStorage.getItem("level") as Level) || "B1");
-        let type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
+        const type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
         setGameType(type);
         const loadAttempts = async () => {
             if (type == "daily"){
@@ -147,22 +173,6 @@ export function GamePage(){
         getProfile();
 
     }, [level]);
-    
-    const getProfile = async () => {
-
-        let type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
-        if (type == "daily"){
-            return;
-        }
-
-        const profileInfo: ProfileInfo = await getProfileInfo(level);
-        setCoins(profileInfo.coins);
-        setGame_level(profileInfo.gameLevel);
-        
-    };
-
-    const navigate = useNavigate();
-    
 
     async function handleClick(letter: string){
 
@@ -175,7 +185,7 @@ export function GamePage(){
                 setCurrAttempt((prev) => prev.slice(0, -1));
                 break;
 
-            case "ENTER":
+            case "ENTER": {
 
                 if (currAttempt.length !== 5) {
                     toast.error("must be 5 letters");
@@ -240,23 +250,12 @@ export function GamePage(){
                 setCurrRow((prev) => prev + 1);
                 setCurrAttempt("");
                 break;
+            }
 
             default:
                 setCurrAttempt((prev) => prev.length < 5 ? prev + letter : prev);
         }
     }
-
-    function newGame(){
-        setCurrRow(0);
-        setAttempts(["", "", "", "", "", ""]);
-        setStatuses(Array(6).fill(["UNUSED","UNUSED","UNUSED","UNUSED","UNUSED"]));
-        setKeysStatuses(defaultKeysStatues);
-        setGameState("playing");
-        setCurrAttempt("");
-        setClues(" ".repeat(5));
-        containerRef.current?.focus();
-    }
-
 
     async function help(){
         if (gameState !== "playing") {
@@ -266,9 +265,9 @@ export function GamePage(){
         try {
             const clue: ClueModel = await getClue(level);
             setClues((prev) => {
-                const newClues = clues.split("");
+                const newClues = prev.split("");
                 newClues[clue.index] = clue.letter;
-                return newClues.join("");            
+                return newClues.join("");
             })
 
         } catch (error) {
