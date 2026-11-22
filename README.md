@@ -1,5 +1,8 @@
 # 🚀 Wordle App
 
+[![Backend CI](https://github.com/ni-hvosta-in/wordle/actions/workflows/backend.yml/badge.svg)](https://github.com/ni-hvosta-in/wordle/actions/workflows/backend.yml)
+[![Frontend CI](https://github.com/ni-hvosta-in/wordle/actions/workflows/frontend.yml/badge.svg)](https://github.com/ni-hvosta-in/wordle/actions/workflows/frontend.yml)
+
 ## 📖 About
 
 This project is a Wordle-like game designed to help improve English vocabulary.
@@ -98,6 +101,22 @@ docker-compose up --build
 
 * Frontend: http://localhost:3000
 * Backend: http://localhost:8080
+
+---
+
+## 🧪 Tests and CI
+
+Backend tests run against a real PostgreSQL started by Testcontainers, so only Docker is required (no `docker-compose`, no environment variables):
+
+```bash
+cd backend
+./gradlew build
+```
+
+GitHub Actions runs on every pull request and on push to `main`:
+
+* **Backend CI**: `./gradlew build` (compile + all tests)
+* **Frontend CI**: `npm ci`, `npm run lint`, `npm run build`
 
 ---
 
