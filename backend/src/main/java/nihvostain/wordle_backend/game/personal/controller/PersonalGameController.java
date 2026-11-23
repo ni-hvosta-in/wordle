@@ -11,7 +11,6 @@ import nihvostain.wordle_backend.game.personal.dto.Clue;
 import nihvostain.wordle_backend.game.personal.dto.ProfileInfo;
 import nihvostain.wordle_backend.game.personal.dto.UserAttempts;
 import nihvostain.wordle_backend.game.personal.services.GameService;
-import nihvostain.wordle_backend.game.personal.services.GameSessionService;
 import nihvostain.wordle_backend.game.personal.services.PersonalService;
 import nihvostain.wordle_backend.game.personal.services.UserProfileService;
 import nihvostain.wordle_backend.game.common.services.WordService;
@@ -32,20 +31,17 @@ public class PersonalGameController {
     private final GameService gameService;
     private final UserProfileService userProfileService;
     private final PersonalService personalService;
-    private final GameSessionService gameSessionService;
 
     PersonalGameController(WordService wordService,
                            GameStrategyService gameStrategyService,
                            UserProfileService userProfileService,
                            GameService gameService,
-                           PersonalService personalService,
-                           GameSessionService gameSessionService) {
+                           PersonalService personalService) {
 
         this.gameStrategyService = gameStrategyService;
         this.gameService = gameService;
         this.userProfileService = userProfileService;
         this.personalService = personalService;
-        this.gameSessionService = gameSessionService;
     }
 
     @PostMapping("/check")
@@ -94,7 +90,7 @@ public class PersonalGameController {
     public ResponseEntity<List<Clue>> getClues(Level level, HttpServletRequest request){
         Long userID = getUserID(request);
 
-        return ResponseEntity.ok(gameSessionService.getCluesByLevel(userID, level));
+        return ResponseEntity.ok(personalService.getCluesByLevel(userID, level));
     }
 
 

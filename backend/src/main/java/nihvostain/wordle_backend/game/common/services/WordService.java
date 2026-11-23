@@ -66,13 +66,6 @@ public class WordService {
         return words.get(random.nextInt(words.size()));
     }
 
-    public String getPersonalWord(Level level, int index){
-        if (wordsToGenerate.get(level).size() <= index){
-            throw new UserIndexOutOfBoundsException("%s ran out of words".formatted(level.toString()));
-        }
-        return wordsToGenerate.get(level).get(index);
-    }
-
     public String getPersonalWord(Level level, Set<String> words){
 
         for (String word: wordsToGenerate.get(level)){

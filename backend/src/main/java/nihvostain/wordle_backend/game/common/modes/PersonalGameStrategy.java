@@ -6,7 +6,6 @@ import nihvostain.wordle_backend.game.common.util.Level;
 import nihvostain.wordle_backend.game.personal.entity.Game;
 import nihvostain.wordle_backend.game.personal.model.GameStatus;
 import nihvostain.wordle_backend.game.personal.services.GameService;
-import nihvostain.wordle_backend.game.personal.services.GameSessionService;
 import nihvostain.wordle_backend.game.personal.services.UserProfileService;
 import nihvostain.wordle_backend.game.common.services.WordChecker;
 import nihvostain.wordle_backend.game.common.services.WordService;
@@ -28,14 +27,11 @@ public class PersonalGameStrategy implements GameModeStrategy {
     private final GameService gameService;
 
     public PersonalGameStrategy(WordChecker wordChecker,
-                                WordService wordService,
-                                GameSessionService gameSessionService,
                                 UserProfileService userProfileService,
                                 GameService gameService) {
 
         this.wordChecker = wordChecker;
         this.userProfileService = userProfileService;
-
         this.gameService = gameService;
     }
 

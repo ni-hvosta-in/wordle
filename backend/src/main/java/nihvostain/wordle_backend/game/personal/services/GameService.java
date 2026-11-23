@@ -131,6 +131,10 @@ public class GameService {
         return attempts;
     }
 
+    public Optional<Game> findActiveGame(Long id, Level level) {
+        return Optional.ofNullable(userActiveGameByLevel(id, level));
+    }
+
     private Game userActiveGameByLevel(Long id, Level level){
 
         List<Game> userActive = gameRepository.findByUserIdAndLevelAndModeAndStatus(
