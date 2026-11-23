@@ -3,8 +3,10 @@ package nihvostain.wordle_backend.game.common.modes;
 import nihvostain.wordle_backend.game.common.util.GameMode;
 import nihvostain.wordle_backend.game.common.util.LetterStatus;
 import nihvostain.wordle_backend.game.common.util.Level;
-import nihvostain.wordle_backend.game.personal.services.GameSessionService;
-import nihvostain.wordle_backend.game.personal.services.UserProgressService;
+import nihvostain.wordle_backend.game.personal.entity.Game;
+import nihvostain.wordle_backend.game.personal.model.GameStatus;
+import nihvostain.wordle_backend.game.personal.services.GameService;
+import nihvostain.wordle_backend.game.personal.services.UserProfileService;
 import nihvostain.wordle_backend.game.common.services.WordChecker;
 import nihvostain.wordle_backend.game.common.services.WordService;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,42 +22,39 @@ public class PersonalGameStrategy implements GameModeStrategy {
     private int MAX_ATTEMPTS;
 
     private final WordChecker wordChecker;
-    private final WordService wordService;
-    private final GameSessionService gameSessionService;
-    private final UserProgressService userProgressService;
+    private final UserProfileService userProfileService;
+
+    private final GameService gameService;
 
     public PersonalGameStrategy(WordChecker wordChecker,
-                                WordService wordService,
-                                GameSessionService gameSessionService,
-                                UserProgressService userProgressService) {
+                                UserProfileService userProfileService,
+                                GameService gameService) {
 
         this.wordChecker = wordChecker;
-        this.wordService = wordService;
-        this.gameSessionService = gameSessionService;
-        this.userProgressService = userProgressService;
-
+        this.userProfileService = userProfileService;
+        this.gameService = gameService;
     }
 
     @Override
     @Transactional
     public LetterStatus[] check(Long id, String attempt, Level level) {
 
-        int index = userProgressService.getUserIndex(id, level);
-        String target = wordService.getPersonalWord(level, index);
-        LetterStatus [] statuses = wordChecker.checkWord(attempt, target);
+        Game userGame = gameService.currentUserTargetWordByLevel(id, level);
 
-        gameSessionService.addAttempt(id, level, attempt, statuses);
+        LetterStatus [] statuses = wordChecker.checkWord(attempt, userGame.getTargetWord());
+
+        int k = gameService.addGuess(userGame, attempt, statuses);
 
         if (Arrays.stream(statuses).allMatch((status) -> status.equals(LetterStatus.CORRECT))
-                || gameSessionService.getAttemptsByLevel(id, level).size() == MAX_ATTEMPTS) {
-
-            userProgressService.incrementUserIndex(id, level);
-            gameSessionService.clearAttempts(id, level);
-            gameSessionService.clearClue(id, level);
+                || k >= MAX_ATTEMPTS - 1) {
 
             if (Arrays.stream(statuses).allMatch((status) -> status.equals(LetterStatus.CORRECT))){
-                userProgressService.correctWord(id);
+                gameService.closeGame(userGame, GameStatus.WON);
+                userProfileService.correctWord(id);
+                return statuses;
             }
+
+            gameService.closeGame(userGame, GameStatus.LOST);
         }
 
         return statuses;

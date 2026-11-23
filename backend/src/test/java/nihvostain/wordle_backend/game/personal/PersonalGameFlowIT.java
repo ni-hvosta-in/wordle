@@ -1,47 +1,23 @@
 package nihvostain.wordle_backend.game.personal;
 
-import com.jayway.jsonpath.JsonPath;
-import nihvostain.wordle_backend.TestcontainersConfiguration;
 import nihvostain.wordle_backend.game.common.util.LetterStatus;
 import nihvostain.wordle_backend.game.common.util.Level;
+import nihvostain.wordle_backend.game.personal.model.GameStatus;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-import java.util.UUID;
-
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
-@ActiveProfiles("test")
-class PersonalGameFlowIT {
-
-    private static final String PASSWORD = "password";
-    private static final String VALID_CHECK_BODY = """
-            {"attempt": "APPLE", "level": "A1"}
-            """;
-
-    @Autowired
-    private MockMvc mockMvc;
+class PersonalGameFlowIT extends AbstractPersonalGameIntegrationTest {
 
     @Test
     void shouldReturnFiveStatuses_whenAuthorizedUserChecksWord() throws Exception {
-        String login = "user-" + UUID.randomUUID();
-        register(login);
-        String token = login(login);
+        TestUser tu = registerAndLogin();
 
-        LetterStatus[] statuses = check(token, "APPLE", Level.A1);
+        LetterStatus[] statuses = check(tu.token(), "APPLE", Level.A1);
 
         assertEquals(5, statuses.length);
     }
@@ -63,44 +39,51 @@ class PersonalGameFlowIT {
                 .andExpect(status().isUnauthorized());
     }
 
-    private LetterStatus[] check(String token, String attempt, Level level) throws Exception {
-        String body = mockMvc.perform(post("/game/personal/check")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
-                        .content("""
-                                {"attempt": "%s", "level": "%s"}
-                                """.formatted(attempt, level)))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+    @Test
+    void shouldWinGame_whenUserGuessesTargetWord() throws Exception {
 
-        List<String> statuses = JsonPath.read(body, "$.statuses");
-        return statuses.stream()
-                .map(LetterStatus::valueOf)
-                .toArray(LetterStatus[]::new);
+        TestUser tu = registerAndLogin();
+        String login = tu.login();
+        Level level = Level.A1;
+        String token = tu.token();
+
+        check(token, DUMMY_WORD, level);
+
+        Long userId = userId(login);
+        String target = singleGame(userId, level).getTargetWord();
+
+        if (!target.equals(DUMMY_WORD)) {
+            LetterStatus[] statuses = check(token, target, level);
+            assertArrayEquals(allCorrect(), statuses);
+        }
+
+        assertEquals(10, coins(userId));
+        singleGame(userId, level, GameStatus.WON);
     }
 
-    private String register(String login) throws Exception {
-        return requestToken("/auth/register", login);
+    @Test
+    void shouldLoseGame_whenAllAttemptsAreWrong() throws Exception {
+        TestUser tu = registerAndLogin();
+        String login = tu.login();
+        Level level = Level.A1;
+        String token = tu.token();
+
+        check(token, DUMMY_WORD, level);
+
+        Long userId = userId(login);
+        boolean firstGameWon = singleGame(userId, level).getTargetWord().equals(DUMMY_WORD);
+        // a won game is closed, the next check starts a new one whose target is never an already played word
+        int remainingAttempts = firstGameWon ? MAX_ATTEMPTS : MAX_ATTEMPTS - 1;
+        int coinsBefore = coins(userId);
+
+        for (int attempt = 0; attempt < remainingAttempts; attempt++) {
+            check(token, DUMMY_WORD, level);
+        }
+
+        assertEquals(coinsBefore, coins(userId));
+        singleGame(userId, level, GameStatus.LOST);
     }
 
-    private String login(String login) throws Exception {
-        return requestToken("/auth/login", login);
-    }
 
-    private String requestToken(String path, String login) throws Exception {
-        String body = mockMvc.perform(post(path)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {"login": "%s", "password": "%s"}
-                            """.formatted(login, PASSWORD)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").isNotEmpty())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
 
-        return JsonPath.read(body, "$.token");
-    }
 }

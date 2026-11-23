@@ -8,4 +8,5 @@ public interface UserRepository extends Repository<User, Long> {
     Optional<User> findUserByLogin(String login);
     boolean existsUserByLogin(String login);
     void save(User user);
+    User getReferenceById(Long id);
 }

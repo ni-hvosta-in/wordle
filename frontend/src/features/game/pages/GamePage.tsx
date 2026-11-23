@@ -47,14 +47,14 @@ export function GamePage(){
     
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const [level, setLevel] = useState<Level>("B1");
+    const [level, setLevel] = useState<Level>(() => (localStorage.getItem("level") as Level) || "B1");
     const items: MenuProps['items'] = ["A1", "A2", "B1", "B2"].map((level) => {
         return ({
             key: level,
             label: level,
             onClick: () => {
                 setLevel(level as Level)
-                sessionStorage.setItem("level", level);
+                localStorage.setItem("level", level);
             }
         });
     });
@@ -99,8 +99,6 @@ export function GamePage(){
     }, []);
 
     useEffect(() => {
-        
-        setLevel((sessionStorage.getItem("level") as Level) || "B1");
         const type : GameType = window.location.pathname.includes("personal") ? "personal" : "daily";
         setGameType(type);
         const loadAttempts = async () => {

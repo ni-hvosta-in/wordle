@@ -1,0 +1,1 @@
+ALTER TABLE guess RENAME CONSTRAINT guess_game_id_attempt_number_key TO uk_guess_game_attempt;
