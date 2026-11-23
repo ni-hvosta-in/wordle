@@ -9,6 +9,7 @@ import nihvostain.wordle_backend.game.common.util.LetterStatus;
 import nihvostain.wordle_backend.game.common.util.Level;
 import nihvostain.wordle_backend.game.personal.entity.Game;
 import nihvostain.wordle_backend.game.personal.entity.Guess;
+import nihvostain.wordle_backend.game.personal.exception.ConcurrentGameUpdateException;
 import nihvostain.wordle_backend.game.personal.exception.FinishedGameNotFoundException;
 import nihvostain.wordle_backend.game.personal.exception.GameInProgressException;
 import nihvostain.wordle_backend.game.personal.model.Attempt;
@@ -16,6 +17,8 @@ import nihvostain.wordle_backend.game.personal.model.GameStatus;
 import nihvostain.wordle_backend.game.personal.model.Mode;
 import nihvostain.wordle_backend.game.personal.repository.GameRepository;
 import nihvostain.wordle_backend.game.personal.repository.GuessRepository;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class GameService {
+
+    private static final String ACTIVE_GAME_CONSTRAINT = "ux_game_one_active_personal";
+    private static final String GUESS_NUMBER_CONSTRAINT = "uk_guess_game_attempt";
 
     private final GameRepository gameRepository;
     private final WordService wordService;
@@ -69,7 +75,11 @@ public class GameService {
                 level, GameStatus.IN_PROGRESS
         );
 
-        gameRepository.save(game);
+        try {
+            gameRepository.saveAndFlush(game);
+        } catch (DataIntegrityViolationException e) {
+            throw concurrentUpdateOrRethrow(e, ACTIVE_GAME_CONSTRAINT, "Active game is being created by another request");
+        }
 
         return game;
 
@@ -79,10 +89,24 @@ public class GameService {
     public int addGuess(Game game, String attempt, LetterStatus [] statuses){
 
         List<Guess> prev = guessRepository.findByGame(game);
-        guessRepository.save(new Guess(game, prev.size() + 1, attempt, statuses, LocalDateTime.now()));
+        try {
+            guessRepository.saveAndFlush(new Guess(game, prev.size() + 1, attempt, statuses, LocalDateTime.now()));
+        } catch (DataIntegrityViolationException e) {
+            throw concurrentUpdateOrRethrow(e, GUESS_NUMBER_CONSTRAINT, "Attempt is being saved by another request");
+        }
 
         return prev.size();
 
+    }
+
+    private static RuntimeException concurrentUpdateOrRethrow(DataIntegrityViolationException e,
+                                                              String expectedConstraint,
+                                                              String message) {
+        if (e.getCause() instanceof ConstraintViolationException cve
+                && expectedConstraint.equals(cve.getConstraintName())) {
+            return new ConcurrentGameUpdateException(message, e);
+        }
+        return e;
     }
 
     @Transactional(propagation = Propagation.MANDATORY)

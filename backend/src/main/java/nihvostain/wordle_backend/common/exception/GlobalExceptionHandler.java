@@ -2,13 +2,13 @@ package nihvostain.wordle_backend.common.exception;
 
 import nihvostain.wordle_backend.auth.exceptions.AuthException;
 import nihvostain.wordle_backend.game.common.exception.NonExistentWordException;
+import nihvostain.wordle_backend.game.personal.exception.ConcurrentGameUpdateException;
 import nihvostain.wordle_backend.game.personal.exception.FinishedGameNotFoundException;
 import nihvostain.wordle_backend.game.personal.exception.GameInProgressException;
 import nihvostain.wordle_backend.game.personal.exception.NoClueException;
 import nihvostain.wordle_backend.game.personal.exception.UserIndexOutOfBoundsException;
 import nihvostain.wordle_backend.game.personal.exception.UserProfileNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex.getMessage()));
     }
 
-    @ExceptionHandler({OptimisticLockingFailureException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler({OptimisticLockingFailureException.class, ConcurrentGameUpdateException.class})
     public ResponseEntity<ErrorResponse> handleConcurrentModification(RuntimeException ex) {
         log.warn("Concurrent modification rejected: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
